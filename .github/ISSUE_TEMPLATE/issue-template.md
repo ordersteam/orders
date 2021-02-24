@@ -11,7 +11,12 @@ assignees: ''
 **I need** [feature description or use case]
 **So that** [value to user]
 
-*Assumptions:**
-[list assumptions here]
+**Assumptions:**
+* [Assumption]
 
 **Acceptance Criteria:**
+```
+Given [info]
+When [event]
+Then [feature]
+```
