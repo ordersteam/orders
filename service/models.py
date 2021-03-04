@@ -195,7 +195,7 @@ class Order(db.Model):
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
         app.app_context().push()
-        db.create_all()  # make our sqlalchemy tables
+        db.create_all() 
 
     @classmethod
     def all(cls):

@@ -40,11 +40,11 @@ def get_orders(order_id):
         raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
-
+    
 @app.route("/orders", methods=["POST"])
 def  create_order():
     """
-    Creates an order
+    Creates an order based on the JSON object sent 
     """
     app.logger.info("Request to create an order")
     check_content_type("application/json")
