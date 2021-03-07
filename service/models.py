@@ -35,29 +35,7 @@ class Item(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
 
     def __repr__(self):
-        return "<Item %r product_id=[%r]>" % (self.item_id, self.product_id)
-
-    def create(self):
-        """
-        Creates a YourResourceModel to the database
-        """
-        logger.info("Creating %s", self.name)
-        self.id = None  # id must be none to generate next primary key
-        db.session.add(self)
-        db.session.commit()
-
-    def save(self):
-        """
-        Updates an Item to the database
-        """
-        logger.info("Saving %s", self.name)
-        db.session.commit()
-
-    def delete(self):
-        """ Removes an item from the data store """
-        logger.info("Deleting %s", self.name)
-        db.session.delete(self)
-        db.session.commit()
+        return "<Item %r>" % (self.item_id)
 
     def serialize(self):
         """ Serializes an item  into a dictionary """
@@ -109,7 +87,7 @@ class Order(db.Model):
     customer_id = db.Column(db.Integer, nullable=False)
     creation_date = db.Column(db.DateTime(), default=datetime.now)
     # List of items in the order 
-    order_items = db.relationship('Item', backref='order', cascade="all, delete", lazy=True)
+    order_items = db.relationship('Item', backref='order', cascade="all, delete")
 
     def __repr__(self):
         return "<Order %r>" % self.id
@@ -211,16 +189,12 @@ class Order(db.Model):
 
     @classmethod
     def find_or_404(cls, by_id):
-        """ Find a YourResourceModel by it's id """
+        """ Find an Order by it's id """
         logger.info("Processing lookup or 404 for id %s ...", by_id)
         return cls.query.get_or_404(by_id)
 
     @classmethod
-    def find_by_name(cls, name):
-        """ Returns all YourResourceModels with the given name
-
-        Args:
-            name (string): the name of the YourResourceModels you want to match
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
+    def find_by_customer_id(cls, customer_id: int):
+        """Returns all of the orders with customer_id: customer_id """
+        cls.logger.info("Processing customer_id query for %s ...", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id)
