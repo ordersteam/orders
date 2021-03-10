@@ -79,12 +79,14 @@ class Item(db.Model):
             self.product_id   = data["product_id"]
             self.quantity =  data["quantity"]
             self.price = data["price"]
+            price_aux = float(self.price)
+            quantity_aux = float(self.quantity)
 
             if self.product_id is None or not isinstance(self.product_id, int):
                 raise DataValidationError("Invalid order: check product id")
-            if self.quantity is None or not isinstance(self.quantity, int):
+            if self.quantity is None or not isinstance(self.quantity, int) or quantity_aux <= 0:
                 raise DataValidationError("Invalid Item: check quantity")
-            if self.price is None or \
+            if self.price is None or price_aux <= 0 or \
                     (not isinstance(self.price, float) and not isinstance(self.price, int)):
                 raise DataValidationError("Invalid Item: check price")
 
