@@ -76,6 +76,25 @@ def list_orders():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+@app.route("/orders/<int:order_id>", methods=["PUT"])
+def update_orders(order_id):
+    """
+    Update a Order
+
+    This endpoint will update a Order based the body that is posted
+    """
+    app.logger.info("Request to update Order with id: %s", order_id)
+    check_content_type("application/json")
+    order = Order.find(order_id)
+    if not order:
+        raise NotFound("order with id '{}' was not found.".format(order_id))
+    order.deserialize(request.get_json())
+    order.id = order_id
+    order.update()
+
+    app.logger.info("Order with ID [%s] updated.", order_id)
+    return make_response(jsonify(Order.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

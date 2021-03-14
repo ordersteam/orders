@@ -19,6 +19,9 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
 
+BASE_URL = '/orders'
+CONTENT_TYPE_JSON = "application/json"
+
 
 def _get_order_factory_with_items(count):
     items = []
@@ -80,3 +83,23 @@ class TestOrderService(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
     
+    def test_update_order(self):
+        """ Update an existing order """
+        # create a order to update
+        test_order = OrderFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_order.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the order
+        new_order = resp.get_json()
+        new_order["category"] = "unknown"
+        resp = self.app.put(
+            "{0}/{1}".format(BASE_URL, new_order["id"]),
+            json=new_order,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_order = resp.get_json()
+        self.assertEqual(updated_order["category"], "unknown")
