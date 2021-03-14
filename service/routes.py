@@ -52,7 +52,7 @@ def  create_order():
     try:
         order.deserialize(request.get_json())
     except DataValidationError as dataValidationError:
-        api.abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
 
     order.create();
     message = order.serialize()
@@ -93,7 +93,7 @@ def update_orders(order_id):
     order.update()
 
     app.logger.info("Order with ID [%s] updated.", order_id)
-    return make_response(jsonify(Order.serialize()), status.HTTP_200_OK)
+    return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################

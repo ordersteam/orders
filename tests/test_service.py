@@ -86,7 +86,7 @@ class TestOrderService(TestCase):
     def test_update_order(self):
         """ Update an existing order """
         # create a order to update
-        test_order = OrderFactory()
+        test_order = _get_order_factory_with_items(1)
         resp = self.app.post(
             BASE_URL, json=test_order.serialize(), content_type=CONTENT_TYPE_JSON
         )
@@ -101,5 +101,3 @@ class TestOrderService(TestCase):
             content_type=CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        updated_order = resp.get_json()
-        self.assertEqual(updated_order["category"], "unknown")
