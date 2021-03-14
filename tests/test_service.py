@@ -129,3 +129,14 @@ class TestOrderService(TestCase):
 
         resp = self.app.get('/orders/500Error')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_delete_order(self):
+        """ Test Delete Order API """
+        # get the id of an order
+        order =  _get_order_factory_with_items(1)
+        resp = self.app.delete(
+            "/orders/{}".format(order.id), 
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
