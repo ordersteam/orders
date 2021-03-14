@@ -70,6 +70,8 @@ class TestOrderService(TestCase):
         """ Test index call """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data['name'], 'Orders REST API Service')
 
 
     def test_create_orders(self):

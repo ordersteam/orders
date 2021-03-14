@@ -108,7 +108,15 @@ def internal_server_error(error):
 @app.route("/")
 def index():
     """ Root URL response """
-    return "Reminder: return some useful information in json format about the service here", status.HTTP_200_OK
+    app.logger.info("Request for Root URL")
+    return(
+        jsonify(
+            name="Orders REST API Service",
+            version="1.0",
+            paths=url_for("list_orders", _external=True),
+        ),
+        status.HTTP_200_OK,
+    )
 
 
 
