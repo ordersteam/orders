@@ -132,6 +132,22 @@ class TestOrderModel(unittest.TestCase):
         data = "this is not a dictionary"
         order = Order()
         self.assertRaises(DataValidationError, order.deserialize, data)
+    
+    
+    def test_delete_an_order(self):
+        """ Delete two Orders """
+        item1 = Item(product_id=1, quantity=1, price=5.0)
+        item2 = Item(product_id=2, quantity=3, price=5.0)
+        order1 = Order(customer_id=121, order_items= [item1])
+        order2 = Order(customer_id=111, order_items= [item2])
+        order1.create()
+        order2.create()
+        self.assertEqual(len(Order.all()), 2)
+        # delete the order and make sure it isn't in the database
+        order1.delete()
+        self.assertEqual(len(Order.all()), 1)
+        order2.delete()
+        self.assertEqual(len(Order.all()), 0)
 
 ######################################################################
 #   PLACE ITEM RELATED TEST CASES HERE 
