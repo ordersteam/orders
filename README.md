@@ -116,5 +116,40 @@ If the VM is no longer needed you can remove it with:
 ```bash
   $ vagrant destroy
 ```
+### Database Schema
+
+Database Used: PostgreSQL
+
+### Order:
+
+|  Column  |  Type  | Constraints  |
+| :---------: | :---------: | :------------: | 
+| id | Integer | Primary Key |
+| customer_id | Integer | |
+| creation_date | Datetime | |
+
+### Item:
+
+|  Column  |  Type  | Constraints  |
+| :----------: | :---------: | :------------: | 
+| item_id | Integer | Primary Key |
+| product_id | Integer | |
+| price | Float | |
+| quantity | Integer | |
+| order_id | Integer | Foreign Key |
+
+
+### APIs Supported
+
+
+| Endpoint       |    Method  | Path          |                      Description
+|----------------|-------|-------------|     -------------------------
+| index        |      GET    |  /          |                List all the available URLs  
+| create_orders | POST   |   /orders  |  Create an order with the data posted 
+| list_orders   |  GET     |  /orders            |             Return list  of the Orders with relevant information
+| get_orders    | GET    |  /orders/\<int:order_id>       |   Retrieve information about an Order
+|update_orders | PUT     | /orders/\<int:order_id>      |   Update an Order based on the info posted.
+| update_order_items  | PUT | /orders/\<int:order_id>/items/\<int:item_id>  | Update a specific item in an order
+| delete_orders   |   DELETE | /orders/\<int:order_id>   |    Delete a specific order
 
 
