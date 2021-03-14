@@ -49,7 +49,7 @@ class TestOrderModel(unittest.TestCase):
 ######################################################################
 #  P L A C E  ORDER RELATED T E S T   C A S E S   H E R E 
 ######################################################################
-
+    
     def test_init_order(self):
         """ Initialize an order and  check if it exists """
         order_items = [Item(product_id=6, quantity=4, price=10)]
