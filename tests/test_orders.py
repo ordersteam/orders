@@ -75,6 +75,53 @@ class TestOrderModel(unittest.TestCase):
         self.assertEqual(order.order_items[0].item_id, 1)
         self.assertEqual(order.order_items[0].order_id, 1)
 
+    def test_update_an_order(self):
+        """ Update an existing Order """
+        order_item1 = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item1]
+        order = Order(customer_id=123, order_items=order_items)
+        order.create()
+        self.assertTrue(order.id is not None)
+        #change order and update
+        order_item2 = Item(product_id=7, quantity=1, price=3)
+        order.order_items.append(order_item2)
+        order.update()
+        self.assertEqual(order.id, 1)
+        self.assertEqual(len(order.order_items), 2)
+        #make sure ID didn't change but data did
+        orders = Order.all()
+        order = orders[0]
+        self.assertEqual(len(orders), 1)
+        self.assertEqual(order.id, 1)
+        self.assertEqual(len(order.order_items), 2)
+
+    def test_update_an_order_not_exists(self):
+        """ Update a non-existing Order """
+        order_item1 = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item1]
+        order = Order(id=1234567, customer_id=123, order_items=order_items)
+        order.update()
+        self.assertRaises(DataValidationError)
+
+    def test_update_order_with_no_id(self):
+        """ Update an order with no id """
+        order_item = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item]
+        order = Order(customer_id=123, order_items=order_items)
+        self.assertRaises(DataValidationError, order.update)
+
+    def test_update_order_with_no_customer_id(self):
+        """ Update an order with no customer id """
+        order_item = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item]
+        order = Order(id=1, order_items=order_items)
+        self.assertRaises(DataValidationError, order.update)
+
+    def test_update_order_with_no_order_items(self):
+        """ Update an order with no order items"""
+        order = Order(id=1, customer_id=123)
+        self.assertRaises(DataValidationError, order.update)
+
     def test_repr(self):
         """ Create an order and check its representation """
         order = Order(id=42, customer_id=1)
