@@ -71,6 +71,21 @@ class TestOrderService(TestCase):
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_get_order(self):
+        """ Get a single Order """
+        # get the id of a pet
+        test_order = self._create_order(1)[0]
+        resp = self.app.get(
+            "/orders/{}".format(test_order.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["id"], test_order.id)
+
+    def test_get_order_not_found(self):
+        """ Get a Order thats not found """
+        resp = self.app.get("/orders/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_orders(self):
         """ Create an order """
