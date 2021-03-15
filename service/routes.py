@@ -1,7 +1,12 @@
 """
-My Service
-
-Describe what your service does here
+Order Service
+Paths:
+------
+GET /orders - Returns a list all of the orders and order items
+GET /orders/{id} - Returns the Order and its items with a given id number
+POST /orders - creates a new order record in the database
+PUT /orders/{id} - updates a Order record in the database
+DELETE /orders/{id} - deletes a order record and associated items in the database
 """
 
 import os
@@ -17,6 +22,85 @@ from service.models import Order, Item,  DataValidationError
 
 # Import Flask application
 from . import app
+
+
+######################################################################
+# Error Handlers
+######################################################################
+@app.errorhandler(DataValidationError)
+def request_validation_error(error):
+    """ Handles Value Errors from bad data """
+    return bad_request(error)
+
+
+@app.errorhandler(status.HTTP_400_BAD_REQUEST)
+def bad_request(error):
+    """ Handles bad reuests with 400_BAD_REQUEST """
+    message = str(error)
+    app.logger.warning(message)
+    return (
+        jsonify(
+            status=status.HTTP_400_BAD_REQUEST, error="Bad Request", message=message
+        ),
+        status.HTTP_400_BAD_REQUEST,
+    )
+
+
+@app.errorhandler(status.HTTP_404_NOT_FOUND)
+def not_found(error):
+    """ Handles resources not found with 404_NOT_FOUND """
+    message = str(error)
+    app.logger.warning(message)
+    return (
+        jsonify(status=status.HTTP_404_NOT_FOUND, error="Not Found", message=message),
+        status.HTTP_404_NOT_FOUND,
+    )
+
+
+@app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
+def method_not_supported(error):
+    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
+    message = str(error)
+    app.logger.warning(message)
+    return (
+        jsonify(
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            error="Method not Allowed",
+            message=message,
+        ),
+        status.HTTP_405_METHOD_NOT_ALLOWED,
+    )
+
+
+@app.errorhandler(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+def mediatype_not_supported(error):
+    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
+    message = str(error)
+    app.logger.warning(message)
+    return (
+        jsonify(
+            status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            error="Unsupported media type",
+            message=message,
+        ),
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+    )
+
+
+@app.errorhandler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+def internal_server_error(error):
+    """ Handles unexpected server error with 500_SERVER_ERROR """
+    message = str(error)
+    app.logger.error(message)
+    return (
+        jsonify(
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error="Internal Server Error",
+            message=message,
+        ),
+        status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
+
 
 ######################################################################
 # Error Handlers
@@ -102,7 +186,15 @@ def internal_server_error(error):
 @app.route("/")
 def index():
     """ Root URL response """
-    return "Reminder: return some useful information in json format about the service here", status.HTTP_200_OK
+    app.logger.info("Request for Root URL")
+    return(
+        jsonify(
+            name="Orders REST API Service",
+            version="1.0",
+            paths=url_for("list_orders", _external=True),
+        ),
+        status.HTTP_200_OK,
+    )
 
 
 @app.route("/orders/<int:order_id>", methods=["GET"])
@@ -151,12 +243,26 @@ def list_orders():
     try:
         results = [order.serialize() for order in orders]
     except DataValidationError as dataValidationError:
-        api.abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
 
     app.logger.info("Returning %d orders", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
-
+######################################################################
+# DELETE AN Order
+######################################################################
+@app.route("/orders/<int:order_id>", methods=["DELETE"])
+def delete_order(order_id):
+    """
+    Delete an Order
+    This endpoint will delete an Order based the id specified in the path
+    """
+    app.logger.info("Request to delete order with id: %s", order_id)
+    order = Order.find(order_id)
+    if order:
+        order.delete()
+    # TODO: Handle when order is not found     
+    return make_response("Delete success", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
