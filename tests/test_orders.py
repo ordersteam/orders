@@ -9,6 +9,7 @@ from werkzeug.exceptions import NotFound
 from service.models import Order,Item, DataValidationError, db
 from service import app 
 from datetime import datetime
+from .order_factory import OrderFactory
 
 # DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 DATABASE_URI = os.getenv(
@@ -196,6 +197,28 @@ class TestOrderModel(unittest.TestCase):
         order2.delete()
         self.assertEqual(len(Order.all()), 0)
 
+    def test_find_order(self):
+        """ Find an Order by ID """
+        item1 = Item(product_id=1, quantity=1, price=5.0)
+        item2 = Item(product_id=2, quantity=3, price=5.0)
+        item3 = Item(product_id=2, quantity=3, price=5.0)
+        order1 = Order(customer_id=121, order_items= [item1])
+        order2 = Order(customer_id=111, order_items= [item2])
+        order3 = Order(customer_id=111, order_items= [item3])
+        order1.create()
+        order2.create()
+        order3.create()
+        # logging.debug(orders)
+        # make sure they got saved
+        self.assertEqual(len(Order.all()), 3)
+        # find the 2nd order in the list
+        order = Order.find(order1.id)
+        self.assertIsNot(order, None)
+        self.assertEqual(order.id, order1.id)
+        self.assertEqual(order.customer_id, order1.customer_id)
+        self.assertEqual(order.creation_date, order1.creation_date)
+
+
 ######################################################################
 #   PLACE ITEM RELATED TEST CASES HERE 
 ######################################################################
@@ -243,6 +266,7 @@ class TestOrderModel(unittest.TestCase):
         data = {"product_id": 1}
         order = Item()
         self.assertRaises(DataValidationError, order.deserialize, data)
+
 
 ######################################################################
 #   M A I N
