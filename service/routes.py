@@ -101,7 +101,6 @@ def internal_server_error(error):
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -117,7 +116,6 @@ def index():
         ),
         status.HTTP_200_OK,
     )
-
 
 
 @app.route("/orders/<int:order_id>", methods=["GET"])
@@ -155,7 +153,6 @@ def  create_order():
     )
 
 
-
 @app.route("/orders", methods = ["GET"])
 def list_orders():
     """
@@ -163,7 +160,12 @@ def list_orders():
     """
     app.logger.info("Request for order list")
     orders = Order.all()
-    results = [order.serialize() for order in orders]
+    
+    try:
+        results = [order.serialize() for order in orders]
+    except DataValidationError as dataValidationError:
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+
     app.logger.info("Returning %d orders", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
