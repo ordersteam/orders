@@ -50,7 +50,7 @@ class TestOrderModel(unittest.TestCase):
 ######################################################################
 #  P L A C E  ORDER RELATED T E S T   C A S E S   H E R E 
 ######################################################################
-
+    
     def test_init_order(self):
         """ Initialize an order and  check if it exists """
         order_items = [Item(product_id=6, quantity=4, price=10)]
@@ -75,6 +75,53 @@ class TestOrderModel(unittest.TestCase):
         self.assertEqual(len(order.order_items), 1)
         self.assertEqual(order.order_items[0].item_id, 1)
         self.assertEqual(order.order_items[0].order_id, 1)
+
+    def test_update_an_order(self):
+        """ Update an existing Order """
+        order_item1 = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item1]
+        order = Order(customer_id=123, order_items=order_items)
+        order.create()
+        self.assertTrue(order.id is not None)
+        #change order and update
+        order_item2 = Item(product_id=7, quantity=1, price=3)
+        order.order_items.append(order_item2)
+        order.update()
+        self.assertEqual(order.id, 1)
+        self.assertEqual(len(order.order_items), 2)
+        #make sure ID didn't change but data did
+        orders = Order.all()
+        order = orders[0]
+        self.assertEqual(len(orders), 1)
+        self.assertEqual(order.id, 1)
+        self.assertEqual(len(order.order_items), 2)
+
+    def test_update_an_order_not_exists(self):
+        """ Update a non-existing Order """
+        order_item1 = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item1]
+        order = Order(id=1234567, customer_id=123, order_items=order_items)
+        order.update()
+        self.assertRaises(DataValidationError)
+
+    def test_update_order_with_no_id(self):
+        """ Update an order with no id """
+        order_item = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item]
+        order = Order(customer_id=123, order_items=order_items)
+        self.assertRaises(DataValidationError, order.update)
+
+    def test_update_order_with_no_customer_id(self):
+        """ Update an order with no customer id """
+        order_item = Item(product_id=3, quantity=2, price=5)
+        order_items = [order_item]
+        order = Order(id=1, order_items=order_items)
+        self.assertRaises(DataValidationError, order.update)
+
+    def test_update_order_with_no_order_items(self):
+        """ Update an order with no order items"""
+        order = Order(id=1, customer_id=123)
+        self.assertRaises(DataValidationError, order.update)
 
     def test_repr(self):
         """ Create an order and check its representation """
@@ -133,21 +180,43 @@ class TestOrderModel(unittest.TestCase):
         data = "this is not a dictionary"
         order = Order()
         self.assertRaises(DataValidationError, order.deserialize, data)
+    
+    
+    def test_delete_an_order(self):
+        """ Delete two Orders """
+        item1 = Item(product_id=1, quantity=1, price=5.0)
+        item2 = Item(product_id=2, quantity=3, price=5.0)
+        order1 = Order(customer_id=121, order_items= [item1])
+        order2 = Order(customer_id=111, order_items= [item2])
+        order1.create()
+        order2.create()
+        self.assertEqual(len(Order.all()), 2)
+        # delete the order and make sure it isn't in the database
+        order1.delete()
+        self.assertEqual(len(Order.all()), 1)
+        order2.delete()
+        self.assertEqual(len(Order.all()), 0)
 
     def test_find_order(self):
         """ Find an Order by ID """
-        orders = OrderFactory.create_batch(3)
-        for order in orders:
-            order.create()
-        logging.debug(orders)
+        item1 = Item(product_id=1, quantity=1, price=5.0)
+        item2 = Item(product_id=2, quantity=3, price=5.0)
+        item3 = Item(product_id=2, quantity=3, price=5.0)
+        order1 = Order(customer_id=121, order_items= [item1])
+        order2 = Order(customer_id=111, order_items= [item2])
+        order3 = Order(customer_id=111, order_items= [item3])
+        order1.create()
+        order2.create()
+        order3.create()
+        # logging.debug(orders)
         # make sure they got saved
         self.assertEqual(len(Order.all()), 3)
         # find the 2nd order in the list
-        order = Order.find(orders[1].id)
+        order = Order.find(order1.id)
         self.assertIsNot(order, None)
-        self.assertEqual(order.id, orders[1].id)
-        self.assertEqual(order.customer_id, orders[1].customer_id)
-        self.assertEqual(order.creation_date, orders[1].creation_date)
+        self.assertEqual(order.id, order1.id)
+        self.assertEqual(order.customer_id, order1.customer_id)
+        self.assertEqual(order.creation_date, order1.creation_date)
 
 
 ######################################################################

@@ -12,6 +12,7 @@ DELETE /orders/{id} - deletes a order record and associated items in the databas
 import os
 import sys
 import logging
+from werkzeug.exceptions import NotFound
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from flask_api import status  # HTTP Status Codes
 
@@ -101,15 +102,21 @@ def internal_server_error(error):
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route("/")
 def index():
     """ Root URL response """
-    return "Reminder: return some useful information in json format about the service here", status.HTTP_200_OK
-
+    app.logger.info("Request for Root URL")
+    return(
+        jsonify(
+            name="Orders REST API Service",
+            version="1.0",
+            paths=url_for("list_orders", _external=True),
+        ),
+        status.HTTP_200_OK,
+    )
 
 
 @app.route("/orders/<int:order_id>", methods=["GET"])
@@ -147,7 +154,6 @@ def  create_order():
     )
 
 
-
 @app.route("/orders", methods = ["GET"])
 def list_orders():
     """
@@ -155,11 +161,50 @@ def list_orders():
     """
     app.logger.info("Request for order list")
     orders = Order.all()
-    results = [order.serialize() for order in orders]
+    
+    try:
+        results = [order.serialize() for order in orders]
+    except DataValidationError as dataValidationError:
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+
     app.logger.info("Returning %d orders", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+@app.route("/orders/<int:order_id>", methods=["PUT"])
+def update_orders(order_id):
+    """
+    Update a Order
+
+    This endpoint will update a Order based the body that is posted
+    """
+    app.logger.info("Request to update Order with id: %s", order_id)
+    check_content_type("application/json")
+    order = Order.find(order_id)
+    if not order:
+        raise NotFound("order with id '{}' was not found.".format(order_id))
+    order.deserialize(request.get_json())
+    order.id = order_id
+    order.update()
+
+    app.logger.info("Order with ID [%s] updated.", order_id)
+    return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# DELETE AN Order
+######################################################################
+@app.route("/orders/<int:order_id>", methods=["DELETE"])
+def delete_order(order_id):
+    """
+    Delete an Order
+    This endpoint will delete an Order based the id specified in the path
+    """
+    app.logger.info("Request to delete order with id: %s", order_id)
+    order = Order.find(order_id)
+    if order:
+        order.delete()
+    # TODO: Handle when order is not found     
+    return make_response("Delete success", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

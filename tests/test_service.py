@@ -53,13 +53,30 @@ class TestOrderService(TestCase):
         db.create_all()
         self.app = app.test_client()
 
-
-
     def tearDown(self):
         """ This runs after each test """
         db.session.remove()
         db.drop_all()
         db.engine.dispose()
+
+    def _create_orders(self, count):
+        """ Factory method to create orders in bulk """
+        orders = []
+        for _ in range(count):
+            test_order = _get_order_factory_with_items(count=1)
+            resp = self.app.post(
+                "/orders", json=test_order.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test order"
+            )
+            new_order = resp.get_json()
+            test_order.id = new_order["id"]
+            order_items = new_order["order_items"]
+            for i, item in enumerate(order_items):
+                test_order.order_items[i].item_id = item["item_id"]
+            orders.append(test_order)
+        return orders
 
 
 ######################################################################
@@ -73,8 +90,8 @@ class TestOrderService(TestCase):
 
     def test_get_order(self):
         """ Get a single Order """
-        # get the id of a pet
-        test_order = self._create_order(1)[0]
+        # get the id of a order
+        test_order = self._create_orders(1)[0]
         resp = self.app.get(
             "/orders/{}".format(test_order.id), content_type="application/json"
         )
@@ -88,13 +105,32 @@ class TestOrderService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_orders(self):
-        """ Create an order """
+        """ Test create an order service """
         order_factory = _get_order_factory_with_items(1)
         resp = self.app.post('/orders',
                              json=order_factory.serialize(),
                              content_type='application/json')
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        
+    def test_get_orders(self):
+        """ Test Get list of orders service """
+        resp = self.app.get('/orders')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_create_order_negative_qty(self):
+        """ Create an order with negative quantity """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].quantity = -2
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_order_negative_price(self):
+        """ Create an order with negative price """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].price = -5
 
     def test_create_orders_wrong_content_type(self):
         """ Create an order with wrong content type """
@@ -113,7 +149,24 @@ class TestOrderService(TestCase):
                              content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_order_zero_qty(self):
+        """ Create an order with zero quantity """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].quantity = 0
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
     
+    def test_update_order(self):
+        """ Update an existing order """
+        # create a order to update
+        test_order = self._create_orders(3)[0]
+        order_factory = _get_order_factory_with_items(1)
+        resp = self.app.put('/orders/{}'.format(test_order.id), json=order_factory.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_create_order_items_missing(self):
         """ Create an order missing order_items """
         resp = self.app.post('/orders',
@@ -129,7 +182,6 @@ class TestOrderService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND, "Not Found")    
 
-
     def test_wrong_method(self):
         """ Try a Method not allowed """
         resp = self.app.patch("/orders")
@@ -144,3 +196,14 @@ class TestOrderService(TestCase):
 
         resp = self.app.get('/orders/500Error')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_delete_order(self):
+        """ Test Delete Order API """
+        # get the id of an order
+        order =  _get_order_factory_with_items(1)
+        resp = self.app.delete(
+            "/orders/{}".format(order.id), 
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
