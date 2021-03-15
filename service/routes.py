@@ -129,7 +129,7 @@ def  create_order():
     try:
         order.deserialize(request.get_json())
     except DataValidationError as dataValidationError:
-        api.abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
 
     order.create();
     message = order.serialize()

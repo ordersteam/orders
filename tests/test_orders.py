@@ -75,8 +75,6 @@ class TestOrderModel(unittest.TestCase):
         self.assertEqual(order.order_items[0].order_id, 1)
 
 
-
-
 ######################################################################
 #   M A I N
 ######################################################################

@@ -82,10 +82,15 @@ class Item(db.Model):
             price_aux = float(self.price)
             quantity_aux = float(self.quantity)
 
+            #checks product id is an int
             if self.product_id is None or not isinstance(self.product_id, int):
                 raise DataValidationError("Invalid order: check product id")
+            
+            #checks quantity is int and greater than 0
             if self.quantity is None or not isinstance(self.quantity, int) or quantity_aux <= 0:
                 raise DataValidationError("Invalid Item: check quantity")
+            
+            #checks price is int/float and not less than 0
             if self.price is None or price_aux <= 0 or \
                     (not isinstance(self.price, float) and not isinstance(self.price, int)):
                 raise DataValidationError("Invalid Item: check price")
@@ -126,7 +131,7 @@ class Order(db.Model):
 
         if len(self.order_items) == 0:
             raise DataValidationError("Invalid Order : Order Items  empty")
-
+    
         db.session.add(self)
         db.session.commit()
 
