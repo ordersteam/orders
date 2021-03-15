@@ -53,8 +53,6 @@ class TestOrderService(TestCase):
         db.create_all()
         self.app = app.test_client()
 
-
-
     def tearDown(self):
         """ This runs after each test """
         db.session.remove()
@@ -73,15 +71,33 @@ class TestOrderService(TestCase):
         data = resp.get_json()
         self.assertEqual(data['name'], 'Orders REST API Service')
 
-
     def test_create_orders(self):
-        """ Create an order """
+        """ Test create an order service """
         order_factory = _get_order_factory_with_items(1)
         resp = self.app.post('/orders',
                              json=order_factory.serialize(),
                              content_type='application/json')
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        
+    def test_get_orders(self):
+        """ Test Get list of orders service """
+        resp = self.app.get('/orders')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_create_order_negative_qty(self):
+        """ Create an order with negative quantity """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].quantity = -2
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_order_negative_price(self):
+        """ Create an order with negative price """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].price = -5
 
     def test_create_orders_wrong_content_type(self):
         """ Create an order with wrong content type """
@@ -100,6 +116,14 @@ class TestOrderService(TestCase):
                              content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_order_zero_qty(self):
+        """ Create an order with zero quantity """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].quantity = 0
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_create_order_items_missing(self):
         """ Create an order missing order_items """
