@@ -122,14 +122,6 @@ class TestOrderModel(unittest.TestCase):
         order = Order(id=1, customer_id=123)
         self.assertRaises(DataValidationError, order.update)
 
-    #def test_update_order_with_wrong_id(self):
-     #   """ Update an order with the wrong order id"""
-      #  order_item = Item(product_id=3, quantity=2, price=5)
-       # order_items = [order_item]
-       # order = Order(id=42, customer_id=123, order_items=order_items)
-       # self.assertRaises(DataValidationError, order.update)
-
-
     def test_repr(self):
         """ Create an order and check its representation """
         order = Order(id=42, customer_id=1)
