@@ -20,9 +20,6 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
 
-BASE_URL = '/orders'
-CONTENT_TYPE_JSON = "application/json"
-
 
 def _get_order_factory_with_items(count):
     items = []
@@ -64,6 +61,25 @@ class TestOrderService(TestCase):
         db.drop_all()
         db.engine.dispose()
 
+    def _create_orders(self, count):
+        """ Factory method to create orders in bulk """
+        orders = []
+        for _ in range(count):
+            test_order = _get_order_factory_with_items(count=1)
+            resp = self.app.post(
+                "/orders", json=test_order.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test order"
+            )
+            new_order = resp.get_json()
+            test_order.id = new_order["id"]
+            order_items = new_order["order_items"]
+            for i, item in enumerate(order_items):
+                test_order.order_items[i].item_id = item["item_id"]
+            orders.append(test_order)
+        return orders
+
 
 ######################################################################
 #  P L A C E   T E S T   C A S E S   H E R E 
@@ -73,6 +89,8 @@ class TestOrderService(TestCase):
         """ Test index call """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data['name'], 'Orders REST API Service')
 
 
     def test_create_orders(self):
@@ -100,31 +118,36 @@ class TestOrderService(TestCase):
                              json=order_factory.serialize(),
                              content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
     
     def test_update_order(self):
         """ Update an existing order """
         # create a order to update
-        item1 = ItemFactory()
-        test_order = OrderFactory(items=[item1])
-        resp = self.app.post(
-            "/orders", json=test_order.serialize(), content_type="application/json"
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        test_order = self._create_orders(3)[0]
+        order_factory = _get_order_factory_with_items(1)
+        resp = self.app.put('/orders/{}'.format(test_order.id), json=order_factory.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-        logging.debug(resp.get_json())
+    #def test_update_order(self):
+       # """ Update an existing Order """
+        # create an order to update
+        #test_order = OrderFactory()
+        #resp = self.app.post(
+        #    "/orders", json=test_order.serialize(), content_type="application/json"
+        #)
+        #self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # update the order
-        new_order = resp.get_json()
-        new_order["customer_id"] = 567,
-        resp = self.app.put(
-            "/orders/{}".format(new_order["id"]),
-            json=new_order,
-            content_type="application/json",
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        updated_order = resp.get_json()
-        self.assertEqual(updated_order["customer_id"], 567)
+        #new_order = resp.get_json()
+        #new_order["customer_id"] = 100
+        #resp = self.app.put(
+        #    "/orders/{}".format(new_order["id"]),
+        #    json=new_order,
+        #    content_type="application/json",
+        #)
+        #self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        #updated_order = resp.get_json()
+        #self.assertEqual(updated_order["customer_id"], 100)
 
     def test_create_order_items_missing(self):
         """ Create an order missing order_items """
@@ -133,11 +156,6 @@ class TestOrderService(TestCase):
                              content_type='application/json')
 
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-    
-   # def test_update_order_id_missing(self):
-       # """ Update order with no id """ 
-        #resp = self.app.post('/orders',)
-
 
     def test_invalid_url(self):
         """ Try an invalid url  """
@@ -145,7 +163,6 @@ class TestOrderService(TestCase):
             "/order", content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND, "Not Found")    
-
 
     def test_wrong_method(self):
         """ Try a Method not allowed """
@@ -161,3 +178,14 @@ class TestOrderService(TestCase):
 
         resp = self.app.get('/orders/500Error')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_delete_order(self):
+        """ Test Delete Order API """
+        # get the id of an order
+        order =  _get_order_factory_with_items(1)
+        resp = self.app.delete(
+            "/orders/{}".format(order.id), 
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
