@@ -21,10 +21,12 @@ DATABASE_URI = os.getenv(
 )
 
 
+
 def _get_order_factory_with_items(count):
+    """  This is an utility to create an order with count items """
     items = []
     for _ in range(count):
-        items.append(   ItemFactory())
+        items.append(ItemFactory())
     return OrderFactory(items=items)
 
 ######################################################################
@@ -60,7 +62,7 @@ class TestOrderService(TestCase):
         db.engine.dispose()
 
     def _create_orders(self, count):
-        """ Factory method to create orders in bulk """
+        """ Factory method to create  more than one order """
         orders = []
         for _ in range(count):
             test_order = _get_order_factory_with_items(count=1)
@@ -200,10 +202,9 @@ class TestOrderService(TestCase):
     def test_delete_order(self):
         """ Test Delete Order API """
         # get the id of an order
-        order =  _get_order_factory_with_items(1)
+        order =  self._create_orders(1)[0]
         resp = self.app.delete(
             "/orders/{}".format(order.id), 
             content_type="application/json"
         )
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-    
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)    
