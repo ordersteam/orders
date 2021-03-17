@@ -200,12 +200,10 @@ def delete_order(order_id):
     This endpoint will delete an Order based the id specified in the path
     """
     app.logger.info("Request to delete order with id: %s", order_id)
-    msg = 'Order not found'
     order = Order.find(order_id)
     if order:
-        order.delete()
-        msg = "Order deleted successfully"        
-    return make_response(msg, status.HTTP_204_NO_CONTENT)
+        order.delete()      
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
