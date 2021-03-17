@@ -26,12 +26,12 @@ class OrderFactory(BaseFactory):
         model = Order
 
     id = factory.Sequence(lambda n: n)
-    customer_id = random.randint(0, 100000)
+    customer_id = random.randint(1, 100000)
     order_items = []
 
     @factory.post_generation
     def items(self, create, extracted, **kwargs):
-        """ Method to add items to Order Foctory """
+        """ Method to add items to Order Factory """
         if not create:
             return
 
@@ -47,9 +47,9 @@ class ItemFactory(BaseFactory):
         model = Item
 
     item_id = factory.Sequence(lambda n: n)
-    product_id = random.randint(0, 100)
-    quantity = random.randint(0, 10)
-    price = random.uniform(0, 1000)
+    product_id = random.randint(1, 100)
+    quantity = random.randint(1, 10)
+    price = random.uniform(1, 1000)
     order_id = factory.SubFactory(OrderFactory)
 
 
