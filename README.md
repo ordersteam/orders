@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ordersteam/orders.svg?branch=main)](https://travis-ci.com/ordersteam/orders)
+
 # orders
 - Repo for Orders microservice (A collection of order items created from products and quantity)
 - Part of NYU DevOps Spring 2021
