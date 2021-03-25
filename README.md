@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/ordersteam/orders.svg?branch=main)](https://travis-ci.com/ordersteam/orders)
+[![codecov](https://codecov.io/gh/ordersteam/orders/branch/main/graph/badge.svg?token=L9IGNC3ISH)](https://codecov.io/gh/ordersteam/orders)
 
 # orders
 - Repo for Orders microservice (A collection of order items created from products and quantity)
