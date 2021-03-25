@@ -5,7 +5,7 @@
 - Repo for Orders microservice (A collection of order items created from products and quantity)
 - Part of NYU DevOps Spring 2021
 ## Introduction
- This repository contains the code for the Orders squad. This is part of the larger effort to design the back end of an ecommerce website
+ This repository contains the code for the Orders squad. This is part of the larger effort to design the back end of an ecommerce website such as Amazon
  as a Collection of RESTful services to the client
 
  ## Prerequisite Installation using Vagrant VM
