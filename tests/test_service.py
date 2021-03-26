@@ -133,6 +133,10 @@ class TestOrderService(TestCase):
         """ Create an order with negative price """
         order_factory = _get_order_factory_with_items(1)
         order_factory.order_items[0].price = -5
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_orders_wrong_content_type(self):
         """ Create an order with wrong content type """
@@ -208,3 +212,15 @@ class TestOrderService(TestCase):
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)    
+
+
+    def test_cancel_order(self):
+        """ Cancel an order after creating it """
+        order = self._create_orders(1)[0]
+        resp = self.app.put("/orders/{}/cancel".format(order.id))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_cancel_order_not_found(self):
+        """ Cancel an order which does not exist"""
+        resp = self.app.put("/orders/{}/cancel".format(0))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    

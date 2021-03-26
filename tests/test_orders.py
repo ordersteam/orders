@@ -267,6 +267,11 @@ class TestOrderModel(unittest.TestCase):
         order = Item()
         self.assertRaises(DataValidationError, order.deserialize, data)
 
+    def test_deserialize_item_with_wrong_status(self):
+        """ Deserialization of order item with invalid status """
+        data = {"product_id": 1, "quantity": 2, "price": 10.0, "status": None}
+        order = Item()
+        self.assertRaises(DataValidationError, order.deserialize, data)
 
 ######################################################################
 #   M A I N

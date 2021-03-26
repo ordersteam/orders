@@ -206,6 +206,44 @@ def delete_order(order_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# CANCEL AN Order
+######################################################################
+
+@app.route("/orders/<int:order_id>/cancel", methods=["PUT"])
+def cancel_order(order_id):
+    """
+    Cancel an Order
+    This endpoint will cancel an Order based the id specified in the path
+    """
+    app.logger.info("Request to cancel order with id: %s", order_id)
+    order = Order.find(order_id)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order id '{}' was not found.".format(order_id)) 
+    
+    try: 
+       for item in order.order_items:
+          if item.status != "CANCELLED":
+              item.status = "CANCELLED"
+    except DataValidationError as dataValidationError:
+            abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+    order.update()    
+    return order.serialize(), status.HTTP_200_OK
+
+            
+
+
+
+
+
+
+
+######################################################################
+#  Item related APIs below
+######################################################################
+
+
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
