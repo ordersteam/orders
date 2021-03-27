@@ -83,7 +83,7 @@ class Item(db.Model):
             raise DataValidationError(
                 "Invalid Item: body of request contained" "bad or no data"
             )
-        return self
+        return self 
 
     
 class Order(db.Model):
