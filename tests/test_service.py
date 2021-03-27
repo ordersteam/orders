@@ -269,4 +269,67 @@ class TestOrderService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
 
 
+    def test_delete_order_item(self):
+        """ Delete an Item inside order"""
+   
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        resp = self.app.delete('/orders/{}/items/{}'.format(test_order.id, item_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_delete_item_order_not_exists(self):
+        """ 
+        Delete an Item when order is not present
+        """
+
+        resp = self.app.delete('/orders/{}/items/{}'.format(0, 0), json="",
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
+
+    def test_delete_item_not_exist(self):
+        """ Delete an Item not existed inside order"""
+   
+        test_order = self._create_orders(1)[0]
+        resp = self.app.delete('/orders/{}/items/{}'.format(test_order.id, 0),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cancel_item(self):
+        """ Cancel an item in the order after creating it """
+        order = self._create_orders(1)[0]
+        item_id = order.order_items[0].item_id
+        resp = self.app.put("/orders/{}/items/{}/cancel".format(order.id, item_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_cancel_Item_order_not_exists(self):
+        """ 
+        Cancel an Item when order is not present
+        """
+
+        resp = self.app.put('/orders/{}/items/{}/cancel'.format(0, 0),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)  
+
+    def test_cancel_item_not_exist(self):
+        """ Cancel an Item not existed inside order"""
+   
+        test_order = self._create_orders(1)[0]
+        resp = self.app.put('/orders/{}/items/{}/cancel'.format(test_order.id, 0))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)  
+
+    def test_cancel_shipped_or_delivered_item(self):
+        """ Cancel an item which has been shipped/delivered  """
+        order_factory = _get_order_factory_with_items(1)
+        order_factory.order_items[0].status = "DELIVERED"
+       
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        new_order_id = resp.get_json()["id"]
+        item_id = resp.get_json()["order_items"][0]["item_id"]
+        resp = self.app.put("/orders/{}/items/{}/cancel".format(new_order_id, item_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST) 
