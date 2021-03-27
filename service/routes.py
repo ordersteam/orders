@@ -247,12 +247,42 @@ def cancel_order(order_id):
 ######################################################################
 #  Item related APIs below
 ######################################################################
+@app.route("/orders/<int:order_id>/items/<int:item_id>", methods=["PUT"])
+def update_item(order_id, item_id):
+    """
+    Update an item inside an order
+    """  
+    app.logger.info("Request to update order with id :%s and item with id : %s", order_id, item_id)
+    check_content_type("application/json")
+    order = Order.find(order_id)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' not found.".format(order_id))
+    item_found = False
 
+    updated_order_item = Item()
+    updated_order_item.deserialize(request.get_json())
+    item_found = find_item(updated_order_item, order, item_id)
 
-
+    if not item_found:
+        abort(status.HTTP_404_NOT_FOUND, "Item with id '{}'  not found in order.".format(item_id))   
+    order.update()
+    return order.serialize(), status.HTTP_200_OK         
+    
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+def find_item(item, order, item_id):
+    item_found = False
+    for i in range(len(order.order_items)):
+        if order.order_items[i].item_id == item_id:
+            item_found = True
+            order.order_items[i].product_id =item.product_id
+            order.order_items[i].quantity = item.quantity
+            order.order_items[i].price = item.price
+            order.order_items[i].status = item.status
+            break
+    return item_found    
+
 
 def init_db():
     """ Initialies the SQLAlchemy app """

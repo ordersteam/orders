@@ -82,7 +82,7 @@ class TestOrderService(TestCase):
 
 
 ######################################################################
-#  P L A C E   T E S T   C A S E S   H E R E 
+#  P L A C E   O R D E R  R E L A T E D  T E S T   C A S E S   H E R E 
 ######################################################################
 
     def test_index(self):
@@ -238,3 +238,35 @@ class TestOrderService(TestCase):
         new_order_id = resp.get_json()["id"]
         resp = self.app.put("/orders/{}/cancel".format(new_order_id))
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+######################################################################
+#  P L A C E   I T E M  R E L A T E D  T E S T   C A S E S   H E R E 
+######################################################################
+    def test_update_order_item(self):
+        """ Update an Item inside order"""
+   
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        order_item = ItemFactory()
+        resp = self.app.put('/orders/{}/items/{}'.format(test_order.id, item_id),
+                            json=order_item.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_item = resp.get_json()["order_items"][0]
+        self.assertEqual(new_item["product_id"], order_item.product_id)
+        self.assertEqual(new_item["quantity"], order_item.quantity)
+        self.assertAlmostEqual(new_item["price"], order_item.price)
+        self.assertEqual(new_item["status"], order_item.status)
+
+
+    def test_update_order_item_order_not_exists(self):
+        """ 
+        Update an Item when order is not present
+        """
+
+        resp = self.app.put('/orders/{}/items/{}'.format(0, 0), json="",
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
+
+
+
