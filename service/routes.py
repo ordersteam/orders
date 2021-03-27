@@ -220,14 +220,21 @@ def cancel_order(order_id):
     if not order:
         abort(status.HTTP_404_NOT_FOUND, "Order id '{}' was not found.".format(order_id)) 
     
+    orders_not_cancellable = 0
     try: 
        for item in order.order_items:
-          if item.status != "CANCELLED":
+            if item.status in ["DELIVERED", "SHIPPED"]:
+                orders_not_cancellable +=1 
+            # Order status is PLACED or CANCELLED
+            elif item.status == "PLACED":
               item.status = "CANCELLED"
+            if orders_not_cancellable == len(order.order_items):
+                    raise DataValidationError("All items have been shipped/delivered. Cannot cancel")  
     except DataValidationError as dataValidationError:
             abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
     order.update()    
     return order.serialize(), status.HTTP_200_OK
+
 
             
 

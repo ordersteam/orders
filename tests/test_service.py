@@ -224,3 +224,17 @@ class TestOrderService(TestCase):
         """ Cancel an order which does not exist"""
         resp = self.app.put("/orders/{}/cancel".format(0))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
+
+    def test_cancel_order_with_everyhing_shipped(self):
+        """ Cancel an order with all items as shipped/delivered  """
+        order_factory = _get_order_factory_with_items(2)
+        order_factory.order_items[0].status = "DELIVERED"
+        order_factory.order_items[1].status = "SHIPPED"
+
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        new_order_id = resp.get_json()["id"]
+        resp = self.app.put("/orders/{}/cancel".format(new_order_id))
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
