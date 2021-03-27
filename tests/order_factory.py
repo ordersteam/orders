@@ -50,6 +50,7 @@ class ItemFactory(BaseFactory):
     product_id = random.randint(1, 100)
     quantity = random.randint(1, 10)
     price = random.uniform(1, 1000)
+    status = FuzzyChoice(choices=["PLACED"])
     order_id = factory.SubFactory(OrderFactory)
 
 

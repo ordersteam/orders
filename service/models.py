@@ -30,7 +30,7 @@ class Item(db.Model):
     product_id = db.Column(db.Integer, nullable = False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    # TODO:  Add status
+    status = db.Column(db.String, nullable=False, default = "PLACED")
     # The order id has to be stored in another table as the different items have the same order id
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
 
@@ -43,7 +43,8 @@ class Item(db.Model):
             "item_id": self.item_id,
             "product_id": self.product_id,
             "quantity": self.quantity,
-            "price": self.price
+            "price": self.price,
+            "status": self.status
         }
 
     def deserialize(self, data):
@@ -59,19 +60,22 @@ class Item(db.Model):
             self.price = data["price"]
             price_aux = float(self.price)
             quantity_aux = float(self.quantity)
-
+            self.status = data["status"]
             #checks product id is an int
             if self.product_id is None or not isinstance(self.product_id, int):
                 raise DataValidationError("Invalid order: check product id")
-            
+
             #checks quantity is int and greater than 0
             if self.quantity is None or not isinstance(self.quantity, int) or quantity_aux <= 0:
                 raise DataValidationError("Invalid Item: check quantity")
-            
-            #checks price is int/float and not less than 0
+
+             #checks price is int/float and not less than 0
             if self.price is None or price_aux <= 0 or \
                     (not isinstance(self.price, float) and not isinstance(self.price, int)):
                 raise DataValidationError("Invalid Item: check price")
+
+            if self.status not in ['PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED']:
+                raise DataValidationError("Invalid order: not a valid status")
 
         except KeyError as error:
             raise DataValidationError("Invalid Item: missing " + error.args[0])
@@ -109,7 +113,7 @@ class Order(db.Model):
 
         if len(self.order_items) == 0:
             raise DataValidationError("Invalid Order : Order Items  empty")
-    
+
         db.session.add(self)
         db.session.commit()
 
@@ -127,7 +131,7 @@ class Order(db.Model):
         db.session.commit()
 
     def delete(self):
-        """
+        """ 
         Removes an Order from the Database
         """
         db.session.delete(self)
