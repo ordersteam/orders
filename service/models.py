@@ -83,7 +83,14 @@ class Item(db.Model):
             raise DataValidationError(
                 "Invalid Item: body of request contained" "bad or no data"
             )
-        return self 
+        return self
+
+    def delete(self):
+        """ 
+        Removes an Item from the Database
+        """
+        db.session.delete(self)
+        db.session.commit() 
 
     
 class Order(db.Model):

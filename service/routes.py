@@ -220,16 +220,16 @@ def cancel_order(order_id):
     if not order:
         abort(status.HTTP_404_NOT_FOUND, "Order id '{}' was not found.".format(order_id)) 
     
-    orders_not_cancellable = 0
+    items_not_cancellable = 0
     try: 
        for item in order.order_items:
             if item.status in ["DELIVERED", "SHIPPED"]:
-                orders_not_cancellable +=1 
+                items_not_cancellable +=1 
             # Order status is PLACED or CANCELLED
             elif item.status == "PLACED":
               item.status = "CANCELLED"
-            if orders_not_cancellable == len(order.order_items):
-                    raise DataValidationError("All items have been shipped/delivered. Cannot cancel")  
+            if items_not_cancellable == len(order.order_items):
+                    raise DataValidationError("All items have been shipped/delivered. Cannot the order")  
     except DataValidationError as dataValidationError:
             abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
     order.update()    
@@ -246,6 +246,10 @@ def cancel_order(order_id):
 
 ######################################################################
 #  Item related APIs below
+######################################################################
+
+######################################################################
+#  Update Item
 ######################################################################
 @app.route("/orders/<int:order_id>/items/<int:item_id>", methods=["PUT"])
 def update_item(order_id, item_id):
@@ -266,8 +270,66 @@ def update_item(order_id, item_id):
     if not item_found:
         abort(status.HTTP_404_NOT_FOUND, "Item with id '{}'  not found in order.".format(item_id))   
     order.update()
-    return order.serialize(), status.HTTP_200_OK         
+    return order.serialize(), status.HTTP_200_OK     
+
+######################################################################
+#  Delete Item 
+######################################################################
+
+@app.route("/orders/<int:order_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_item(order_id, item_id):
+    """
+    delete an item inside an order
+    """  
+    app.logger.info("Request to delete order with id :%s and item with id : %s", order_id, item_id)
+    check_content_type("application/json")
+    order = Order.find(order_id)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' not found.".format(order_id))
     
+
+    item_found = False
+    for item in order.order_items:
+       if item.item_id == item_id:
+            item_found = True
+            item.delete()
+
+    if not item_found:
+        abort(status.HTTP_404_NOT_FOUND, "Item with id '{}'  not found in order.".format(item_id))   
+    return make_response("", status.HTTP_204_NO_CONTENT)  
+
+######################################################################
+#  Cancel Item
+######################################################################
+@app.route("/orders/<int:order_id>/items/<int:item_id>/cancel", methods=["PUT"])
+def cancel_item(order_id, item_id):
+    """
+    Cancel item in Order
+    This endpoint will cancel an item in the Order based the item id specified in the path
+    """
+    app.logger.info("Request to cancel order with id :%s and item with id : %s", order_id, item_id)
+    order = Order.find(order_id)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order id '{}' was not found.".format(order_id)) 
+    
+    item_found = False
+    item_cancellable = True
+    try:
+        for item in order.order_items:
+            if item.item_id == item_id:
+                item_found = True
+                if item.status in ["DELIVERED", "SHIPPED"]:
+                    item_cancellable = False
+                elif item.status == "PLACED":
+                    item.status = "CANCELLED"
+        if not item_found:
+            abort(status.HTTP_404_NOT_FOUND, "Item with id '{}'  not found in item.".format(item_id))   
+        if not item_cancellable: 
+            raise DataValidationError("Item not cancellable")
+    except DataValidationError as dataValidationError:
+            abort(status.HTTP_400_BAD_REQUEST, dataValidationError) 
+    order.update()        
+    return order.serialize(), status.HTTP_200_OK
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
