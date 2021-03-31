@@ -139,20 +139,35 @@ Database Used: PostgreSQL
 | product_id | Integer | |
 | price | Float | |
 | quantity | Integer | |
+| status   |  String || PLACED, SHIPPED, DELIVERED, CANCELLED ||
 | order_id | Integer | Foreign Key |
 
 
 ### APIs Supported
 
-
+Order related APIs
 | Endpoint       |    Method  | Path          |                      Description
 |----------------|-------|-------------|     -------------------------
 | index        |      GET    |  /          |                List all the available URLs  
 | create_orders | POST   |   /orders  |  Create an order with the data posted 
 | list_orders   |  GET     |  /orders            |             Return list  of the Orders with relevant information
 | get_orders    | GET    |  /orders/\<int:order_id>       |   Retrieve information about an Order
-|update_orders | PUT     | /orders/\<int:order_id>      |   Update an Order based on the info posted.
-| update_order_items  | PUT | /orders/\<int:order_id>/items/\<int:item_id>  | Update a specific item in an order
+| get_customer_orders| GET | /orders/customer/int: customer_id   | Retrieve orders of customer
+| update_orders | PUT    | /orders/\<int:order_id>      |   Update an Order based on the info posted.
 | delete_orders   |   DELETE | /orders/\<int:order_id>   |    Delete a specific order
+| cancel_order    |   PUT    | /orders/\<int:order_id>/cancel |   Cancel items in the order
+
+Item related APIs
+| Endpoint       |    Method  | Path          |                      Description
+|----------------|-------|-------------|     -------------------------
+| get_item  | GET | /orders/\<int:order_id>/items/\<int:item_id>  | Retrieve information on specific item in an order
+| add_order_item  |  POST | /orders/\<int:order_id>/items/  | Add a specific item in an order
+| update_order_item  | PUT | /orders/\<int:order_id>/items/\<int:item_id>  | Update a specific item in an order
+| delete_order_item  | DELETE | /orders/\<int:order_id>/items/\<int:item_id>  | Delete a specific item in an order
+| cancel_order_item  | PUT | /orders/\<int:order_id>/items/\<int:item_id>/cancel  | Cancel a specific item in an order
+
+
+
+
 
 

@@ -239,6 +239,17 @@ class TestOrderService(TestCase):
         resp = self.app.put("/orders/{}/cancel".format(new_order_id))
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_get_customer_orders(self):
+        """ Get orders of  customer """
+
+        test_order = self._create_orders(1)[0]
+        resp = self.app.get(
+            "/orders/customer/{}".format(test_order.customer_id), content_type="application/json" )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data[0]["customer_id"], test_order.customer_id)
+
+
 ######################################################################
 #  P L A C E   I T E M  R E L A T E D  T E S T   C A S E S   H E R E 
 ######################################################################

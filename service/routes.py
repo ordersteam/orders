@@ -131,6 +131,20 @@ def get_orders(order_id):
         raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
+
+@app.route("/orders/customer/<int:customer_id>", methods=["GET"]) 
+def get_customer_orders(customer_id):
+    """
+    Get the orders of particular customer
+    This endpoint will return the orders for a customer id specified
+    """
+    app.logger.info("Request for order with cust id: %s", customer_id)
+    orders = Order.find_by_customer_id(customer_id)
+    if not orders:
+         raise NotFound("Orders for customer id '{}' was not found.".format(customers_id))
+    results = [order.serialize() for order in orders]
+    app.logger.info("Returning %d orders", len(results))
+    return   make_response(jsonify(results), status.HTTP_200_OK)
     
 @app.route("/orders", methods=["POST"])
 def  create_order():
