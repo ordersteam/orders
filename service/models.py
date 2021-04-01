@@ -6,6 +6,7 @@ All of the models are stored in this module
 import logging
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import asc, desc
 
 logger = logging.getLogger("flask.app")
 
@@ -216,3 +217,16 @@ class Order(db.Model):
         """Returns all of the orders with customer_id: customer_id """
         cls.logger.info("Processing customer_id query for %s ...", customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
+
+    @classmethod
+    def sort_by(cls, sort, sort_by):
+        """Returns all of the orders sorted by customer_id"""
+        cls.logger.info("Processing all orders query sorted by %s ...", sort)
+        # Defaults sorting is ASC
+        if sort_by is None or (sort_by != 'asc' and sort_by != 'desc'):
+            return cls.query.order_by(asc(sort))
+        else:
+            if sort_by == 'asc':
+                return cls.query.order_by(asc(sort))
+            else:
+                return cls.query.order_by(desc(sort))
