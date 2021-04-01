@@ -118,6 +118,11 @@ class TestOrderService(TestCase):
         resp = self.app.get('/orders')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_get_sorted_parameters(self):
+        """ Test Get sorted list of orders service by customer id """
+        resp = self.app.get('/orders?sort=customer_id&sort_by=asc')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_create_order_negative_qty(self):
         """ Create an order with negative quantity """
         order_factory = _get_order_factory_with_items(1)

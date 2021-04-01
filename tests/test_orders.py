@@ -52,7 +52,7 @@ class TestOrderModel(unittest.TestCase):
 ######################################################################
     
     def test_init_order(self):
-        """ Initialize an order and  check if it exists """
+        """ Initialize an order and check if it exists """
         order_items = [Item(product_id=6, quantity=4, price=10)]
         order = Order(customer_id=1, order_items=order_items)
         self.assertTrue(order is not None)
