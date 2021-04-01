@@ -160,7 +160,15 @@ def list_orders():
     Returns list of all orders
     """
     app.logger.info("Request for order list")
-    orders = Order.all()
+    
+    params = request.args
+    sort_value = params.get('sort')
+    sortby_value = params.get('sort_by')
+
+    if sort_value is not None:
+        orders = Order.sort_by(sort_value,sortby_value)
+    else:
+        orders = Order.all()
     
     try:
         results = [order.serialize() for order in orders]
@@ -169,7 +177,6 @@ def list_orders():
 
     app.logger.info("Returning %d orders", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
-
 
 @app.route("/orders/<int:order_id>", methods=["PUT"])
 def update_orders(order_id):
