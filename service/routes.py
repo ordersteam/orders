@@ -255,14 +255,7 @@ def cancel_order(order_id):
             abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
     order.update()    
     return order.serialize(), status.HTTP_200_OK
-
-
-            
-
-
-
-
-
+           
 
 
 ######################################################################

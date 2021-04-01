@@ -254,6 +254,12 @@ class TestOrderService(TestCase):
         data = resp.get_json()
         self.assertEqual(data[0]["customer_id"], test_order.customer_id)
 
+    def test_get_customer_orders_with_invalid_customer_id(self):
+        """ Get orders of customer  with invalid customer id"""
+        resp = self.app.get(
+            "/orders/customer/{}".format(0), content_type="application/json" )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK) 
+
 
 ######################################################################
 #  P L A C E   I T E M  R E L A T E D  T E S T   C A S E S   H E R E 
