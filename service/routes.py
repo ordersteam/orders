@@ -140,8 +140,6 @@ def get_customer_orders(customer_id):
     """
     app.logger.info("Request for order with cust id: %s", customer_id)
     orders = Order.find_by_customer_id(customer_id)
-    if not orders:
-         raise NotFound("Orders for customer id '{}' was not found.".format(customers_id))
     results = [order.serialize() for order in orders]
     app.logger.info("Returning %d orders", len(results))
     return   make_response(jsonify(results), status.HTTP_200_OK)
