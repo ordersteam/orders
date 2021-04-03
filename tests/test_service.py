@@ -264,6 +264,22 @@ class TestOrderService(TestCase):
 ######################################################################
 #  P L A C E   I T E M  R E L A T E D  T E S T   C A S E S   H E R E 
 ######################################################################
+    def test_get_order_item(self):
+        """ Get an Item inside Order"""
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        order_item = ItemFactory()
+        resp = self.app.get('/orders/{}/items/{}'.format(test_order.id, item_id),
+                            json=order_item.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_item = resp.get_json()
+        self.assertEqual(new_item["product_id"], order_item.product_id)
+        self.assertEqual(new_item["quantity"], order_item.quantity)
+        self.assertAlmostEqual(new_item["price"], order_item.price)
+        self.assertEqual(new_item["status"], order_item.status)  
+        
+
     def test_update_order_item(self):
         """ Update an Item inside order"""
    
