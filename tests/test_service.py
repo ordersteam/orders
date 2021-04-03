@@ -287,6 +287,22 @@ class TestOrderService(TestCase):
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+
+    def test_create_invalid_item(self):
+        """ Test create an invalid item """
+        order_factory = _get_order_factory_with_items(1)
+        resp = self.app.post('/orders',
+                             json=order_factory.serialize(),
+                             content_type='application/json')
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        order_item = ItemFactory()
+        order_item.quantity = -1
+        resp = self.app.put('/orders/{}/items'.format(resp.get_json()["id"]),
+                            json=order_item.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)    
+
     
     def test_create_item_order_not_exists(self):
         """ Test create an item insider order which does not exist """
