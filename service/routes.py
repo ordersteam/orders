@@ -131,18 +131,6 @@ def get_orders(order_id):
         raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
-
-@app.route("/orders/customer/<int:customer_id>", methods=["GET"]) 
-def get_customer_orders(customer_id):
-    """
-    Get the orders of particular customer
-    This endpoint will return the orders for a customer id specified
-    """
-    app.logger.info("Request for order with cust id: %s", customer_id)
-    orders = Order.find_by_customer_id(customer_id)
-    results = [order.serialize() for order in orders]
-    app.logger.info("Returning %d orders", len(results))
-    return   make_response(jsonify(results), status.HTTP_200_OK)
     
 @app.route("/orders", methods=["POST"])
 def  create_order():
@@ -176,12 +164,16 @@ def list_orders():
     params = request.args
     sort_value = params.get('sort')
     sortby_value = params.get('sort_by')
+    customer_id = params.get("customer_id")
 
     if sort_value is not None:
         orders = Order.sort_by(sort_value,sortby_value)
     else:
         orders = Order.all()
     
+    if customer_id:
+        orders = Order.find_by_customer_id(customer_id)
+
     try:
         results = [order.serialize() for order in orders]
     except DataValidationError as dataValidationError:
@@ -261,6 +253,35 @@ def cancel_order(order_id):
 ######################################################################
 
 ######################################################################
+#  Add Item to order
+######################################################################
+
+@app.route("/orders/<int:order_id>/items", methods=["PUT"])
+def  create_item_in_order(order_id):
+    """
+    Adds an item to the order based on the JSON object sent 
+    """
+    app.logger.info("Request to create an item inside the order")
+    check_content_type("application/json")
+
+    order = Order.find(order_id)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' not found.".format(order_id))
+
+    item = Item();
+    try:
+        item.deserialize(request.get_json())
+    except DataValidationError as dataValidationError:
+        abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+
+    order.order_items.append(item)
+    order.update();
+    message = order.serialize()
+    location_url = url_for("get_orders", order_id=order.id, _external=True)
+    app.logger.info('Added item to  Order with id: {}'.format(order.id))
+    return order.serialize(), status.HTTP_200_OK     
+
+######################################################################
 #  Update Item
 ######################################################################
 @app.route("/orders/<int:order_id>/items/<int:item_id>", methods=["PUT"])
@@ -283,6 +304,7 @@ def update_item(order_id, item_id):
         abort(status.HTTP_404_NOT_FOUND, "Item with id '{}'  not found in order.".format(item_id))   
     order.update()
     return order.serialize(), status.HTTP_200_OK     
+
 
 ######################################################################
 #  Delete Item 
@@ -342,6 +364,7 @@ def cancel_item(order_id, item_id):
             abort(status.HTTP_400_BAD_REQUEST, dataValidationError) 
     order.update()        
     return order.serialize(), status.HTTP_200_OK
+    
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
