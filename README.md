@@ -152,7 +152,8 @@ Order related APIs
 | create_orders | POST   |   /orders  |  Create an order with the data posted 
 | list_orders   |  GET     |  /orders            |             Return list  of the Orders with relevant information
 | get_orders    | GET    |  /orders/\<int:order_id>       |   Retrieve information about an Order
-| get_customer_orders| GET | /orders/customer/int: customer_id   | Retrieve orders of customer
+| get_customer_orders| GET | /orders?customer_id=<int:customer_id >| Retrieve orders of customer
+| sort_orders |  GET  | /orders?sort=<int: criteria>&sort_by=<int: sort_type>'   | Retrieve orders based on criteria after sorting
 | update_orders | PUT    | /orders/\<int:order_id>      |   Update an Order based on the info posted.
 | delete_orders   |   DELETE | /orders/\<int:order_id>   |    Delete a specific order
 | cancel_order    |   PUT    | /orders/\<int:order_id>/cancel |   Cancel items in the order
