@@ -311,6 +311,37 @@ class TestOrderService(TestCase):
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
              
+    def test_get_order_item(self):
+        """ Get an Item inside Order"""
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        order_item = ItemFactory()
+        resp = self.app.get('/orders/{}/items/{}'.format(test_order.id, item_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_item = resp.get_json()
+        self.assertEqual(new_item["product_id"], order_item.product_id)
+        self.assertEqual(new_item["quantity"], order_item.quantity)
+        self.assertAlmostEqual(new_item["price"], order_item.price)
+        self.assertEqual(new_item["status"], order_item.status)  
+
+
+    def test_get_order_item_order_not_exists(self):
+        """ Get an Item inside Order when order does not exist"""
+        resp = self.app.get('/orders/{}/items/{}'.format(0, 0),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_order_item_not_exist(self):
+        """ Get an Item inside order where the item does not exist"""
+   
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        order_item = ItemFactory()
+        resp = self.app.get('/orders/{}/items/{}'.format(test_order.id, 0),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)    
+       
     def test_update_order_item(self):
         """ Update an Item inside order"""
    
