@@ -68,23 +68,25 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
   end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -y git python3 python3-pip python3-venv libpq-dev
-    apt-get -y autoremove
-
-    # Create a Python3 Virtual Environment and Activate it in .profile
-    sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'
-    sudo -H -u vagrant sh -c 'echo ". ~/venv/bin/activate" >> ~/.profile'
-    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'
-
-    # Install app dependencies
-    # cd /vagrant
-    # pip3 install -r requirements.txt
-  SHELL
+ ############################################################
+    # Create a Python 3 environment for development work
+    ############################################################
+    config.vm.provision "shell", inline: <<-SHELL
+      # Update and install
+      apt-get update
+      apt-get install -y git tree wget python3-dev python3-pip python3-venv  python3-selenium
+      apt-get upgrade python3
+      echo "\n*****************************************"
+      echo " Installing Chrome Headless and Selenium"
+      echo "*****************************************\n"
+      apt-get install -y chromium-chromedriver 
+      
+      
+      # Create a Python3 Virtual Environment and Activate it in .profile
+      sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'
+      sudo -H -u vagrant sh -c 'echo ". ~/venv/bin/activate" >> ~/.profile'
+      sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'
+    SHELL
 
   ######################################################################
   # Add PostgreSQL docker container
