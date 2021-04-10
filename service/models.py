@@ -1,6 +1,5 @@
 """
 Models for Order
-
 All of the models are stored in this module
 """
 import logging
@@ -51,7 +50,6 @@ class Item(db.Model):
     def deserialize(self, data):
         """
         Deserializes an Item  from a dictionary
-
         Args:
             data (dict): A dictionary containing the resource data
         """
