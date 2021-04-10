@@ -12,7 +12,7 @@ Feature: The orders service back-end
       | 104         | 1000,10,10,DELIVERED                        |
       | 105         | 1,1,1,SHIPPED                               |
 
-  Scenario: The Server is running
+ Scenario: The Server is running
     When I visit the "Home Page"
-    Then I should see "Order REST API Service" in the title
+    Then I should see "Order RESTful Service" in the title
     And I should not see "404 Not Found"
