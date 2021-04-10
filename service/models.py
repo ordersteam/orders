@@ -18,82 +18,6 @@ class DataValidationError(Exception):
     pass
 
 
-class Item(db.Model):
-    """
-    Class that represents an item inside an order... For eg if a person orders 3 oranges and 4 apples as 
-    part of a single order, this Item class represents the 3 oranges. 
-    """
-
-    app = None
-
-    # Order Item Table Schema
-    item_id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, nullable = False)
-    price = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=1)
-    status = db.Column(db.String, nullable=False, default = "PLACED")
-    # The order id has to be stored in another table as the different items have the same order id
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
-
-    def __repr__(self):
-        return "<Item %r>" % (self.item_id)
-
-    def serialize(self):
-        """ Serializes an item  into a dictionary """
-        return {
-            "item_id": self.item_id,
-            "product_id": self.product_id,
-            "quantity": self.quantity,
-            "price": self.price,
-            "status": self.status
-        }
-
-    def deserialize(self, data):
-        """
-        Deserializes an Item  from a dictionary
-
-        Args:
-            data (dict): A dictionary containing the resource data
-        """
-        try:
-            self.product_id   = data["product_id"]
-            self.quantity =  data["quantity"]
-            self.price = data["price"]
-            price_aux = float(self.price)
-            quantity_aux = float(self.quantity)
-            self.status = data["status"]
-            #checks product id is an int
-            if self.product_id is None or not isinstance(self.product_id, int):
-                raise DataValidationError("Invalid order: check product id")
-
-            #checks quantity is int and greater than 0
-            if self.quantity is None or not isinstance(self.quantity, int) or quantity_aux <= 0:
-                raise DataValidationError("Invalid Item: check quantity")
-
-             #checks price is int/float and not less than 0
-            if self.price is None or price_aux <= 0 or \
-                    (not isinstance(self.price, float) and not isinstance(self.price, int)):
-                raise DataValidationError("Invalid Item: check price")
-
-            if self.status not in ['PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED']:
-                raise DataValidationError("Invalid order: not a valid status")
-
-        except KeyError as error:
-            raise DataValidationError("Invalid Item: missing " + error.args[0])
-        except TypeError as error:
-            raise DataValidationError(
-                "Invalid Item: body of request contained" "bad or no data"
-            )
-        return self
-
-    def delete(self):
-        """ 
-        Removes an Item from the Database
-        """
-        db.session.delete(self)
-        db.session.commit() 
-
-    
 class Order(db.Model):
     """ Class that represents an Order """
     logger = logging.getLogger(__name__)
@@ -230,3 +154,79 @@ class Order(db.Model):
                 return cls.query.order_by(asc(sort))
             else:
                 return cls.query.order_by(desc(sort))
+
+class    Item(db.Model):
+    """
+    Class that represents an item inside an order... For eg if a person orders 3 oranges and 4 apples as 
+    part of a single order, this Item class represents the 3 oranges. 
+    """
+
+    app = None
+
+    # Order Item Table Schema
+    item_id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, nullable = False)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    status = db.Column(db.String, nullable=False, default = "PLACED")
+   
+    # The order id has to be stored in another table as the different items have the same order id
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
+
+    def __repr__(self):
+        return "<Item %r>" % (self.item_id)
+
+    def serialize(self):
+        """ Serializes an item  into a dictionary """
+        return {
+            "item_id": self.item_id,
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "price": self.price,
+            "status": self.status
+        }
+
+    def deserialize(self, data):
+        """
+        Deserializes an Item  from a dictionary
+
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.product_id   = data["product_id"]
+            self.quantity =  data["quantity"]
+            self.price = data["price"]
+            price_aux = float(self.price)
+            quantity_aux = float(self.quantity)
+            self.status = data["status"]
+            #checks product id is an int
+            if self.product_id is None or not isinstance(self.product_id, int):
+                raise DataValidationError("Invalid order: check product id")
+
+            #checks quantity is int and greater than 0
+            if self.quantity is None or not isinstance(self.quantity, int) or quantity_aux <= 0:
+                raise DataValidationError("Invalid Item: check quantity")
+
+             #checks price is int/float and not less than 0
+            if self.price is None or price_aux <= 0 or \
+                    (not isinstance(self.price, float) and not isinstance(self.price, int)):
+                raise DataValidationError("Invalid Item: check price")
+
+            if self.status not in ['PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED']:
+                raise DataValidationError("Invalid order: not a valid status")
+
+        except KeyError as error:
+            raise DataValidationError("Invalid Item: missing " + error.args[0])
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Item: body of request contained" "bad or no data"
+            )
+        return self
+
+    def delete(self):
+        """ 
+        Removes an Item from the Database
+        """
+        db.session.delete(self)
+        db.session.commit() 
