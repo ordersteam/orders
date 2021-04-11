@@ -9,11 +9,13 @@ import logging
 import json
 import requests
 from behave import *
+from service import app
 from compare import expect, ensure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
+
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
 ID_PREFIX = 'order_'
@@ -56,7 +58,6 @@ def step_impl(context):
 def step_impl(context):
     """ Make a call to the base URL """
     context.driver.get(context.base_url)
-
 
 @then('I should see "{message}" in the title')
 def step_impl(context, message):
@@ -131,6 +132,29 @@ def step_impl(context, element_name):
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element_by_id(button_id).click()
+
+@then('I should see order for customer_id "{customer_id}" in the results')
+def step_impl(context, customer_id):
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'results'),
+            customer_id
+        )
+    )
+    expect(found).to_be(True)
+
+@then('I should not see order for customer_id "{customer_id}" in the results')
+def step_impl(context, customer_id):
+    element = context.driver.find_element_by_id('results')
+    error_msg = "I should not see '%s' in '%s'" % (customer_id, element.text)
+    ensure(customer_id in element.text, False, error_msg)
+
+
+@then('I should not see order for id "{id}" in the results')
+def step_impl(context, id):
+    element = context.driver.find_element_by_id('results')
+    error_msg = "I should not see '%s' in '%s'" % (id, element.text)
+    ensure(id in element.text, False, error_msg)
 
 @then('I should see "{name}" in the results')
 def step_impl(context, name):
