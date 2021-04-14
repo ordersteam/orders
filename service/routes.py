@@ -120,7 +120,7 @@ def get_orders(order_id):
     app.logger.info("Request for order with id: %s", order_id)
     order = Order.find(order_id)
     if not order:
-        raise NotFound("Order with id '{}' was not found.".format(order_id))
+        raise NotFound("Order was not found.")
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 
