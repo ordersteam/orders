@@ -50,7 +50,6 @@ Feature: The orders service back-end
     And I should see "18.09" in the "item1_price" field
     And I should see "Shipped" in the "item1_status" dropdown
 
-
   Scenario: List all orders
     When I visit the "Home Page"
     And I press the "List-All" button
@@ -69,4 +68,50 @@ Feature: The orders service back-end
     And I should not see order for customer_id "1001" in the results
     And I should not see order for customer_id "1002" in the results
     And I should not see order for customer_id "1004" in the results
+
+
+  Scenario: Update an Order
+    When I visit the "Home Page"
+    And I press the "List-All" button
+    Then I should see the message "Success"
+    And I should see order for customer_id "1001" in the results
+    And I should see order for customer_id "1002" in the results
+    And I should see order for customer_id "1003" in the results
+    When I copy the "id" field
+    And I set the "customer_id" to "999"
+    And I press the "Update" button
+    And I press the "Reset-Form" button
+    Then the "id" field should be empty
+    And the "customer_id" field should be empty
+    When I paste the "id" field
+    And I press the "Retrieve" button
+    Then I should see "999" in the "customer_id" field  
+  
+  Scenario: Update an Order with incorrect Order ID
+    When I visit the "Home Page"
+    And I press the "List-All" button
+    Then I should see the message "Success"
+    And I should see order for customer_id "1001" in the results
+    And I should see order for customer_id "1002" in the results
+    And I should see order for customer_id "1003" in the results
+    When I set the "id" to "0"
+    And I set the "customer_id" to "666"
+    And I press the "Update" button
+    Then I should see the message "order with id '0' was not found."
+
+  Scenario: Read an order for an invalid id
+    When I visit the "Home Page"
+    And I set the "id" to "0"
+    And I press the "Retrieve" button
+    Then I should see the message "Order with id '0' was not found."
+    And the "customer_id" field should be empty
+
+  Scenario: List all orders for an invalid cust id
+    When I visit the "Home Page"
+    And I set the "customer_id" to "12423"
+    And I press the "find-by-customer-id" button
+    Then I should not see order for customer_id "999" in the results
+    And I should not see order for customer_id "1001" in the results
+    And I should not see order for customer_id "1002" in the results
+    And I should not see order for customer_id "1003" in the results  
   
