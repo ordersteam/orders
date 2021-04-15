@@ -33,6 +33,3 @@ jobs:
       script: nosetests
       after_success: codecov
     - script: behave
-
-after_success:
- - codecov
