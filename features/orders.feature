@@ -163,3 +163,23 @@ Feature: The orders service back-end
     When I paste the "id" field
     And I press the "Retrieve" button
     Then I should see the message "Order was not found."
+
+  Scenario: Delete an order by id missing id
+    When I visit the "Home Page"
+    And I press the "List-All" button
+    Then I should see the message "Success"
+    And I should see order for customer_id "1001" in the results
+    And I should see order for customer_id "1002" in the results
+    And I should see order for customer_id "1003" in the results
+    And I should not see order for id "999" in the results
+    When I press the "Reset-Form" button
+    Then the "id" field should be empty
+    And the "customer_id" field should be empty
+    When I set the "id" to "999"
+    And I press the "Delete" button
+    And I press the "List-All" button
+    Then I should see the message "Success"
+    And I should see order for customer_id "1001" in the results
+    And I should see order for customer_id "1002" in the results
+    And I should see order for customer_id "1003" in the results
+    And I should not see order for id "999" in the results
