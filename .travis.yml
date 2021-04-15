@@ -1,21 +1,38 @@
 language: python
 python:
-  - "3.6"
+  - "3.7.9"
+
+  addons:
+  chrome: stable
+
 
 services:
   - postgresql
 
 env:
-  - DATABASE_URI=postgres://postgres:@localhost:5432/test
+  - DATABASE_URI=postgres://postgres:@localhost:5432/testdb
 
 before_script:
-  - psql -c 'create database test;' -U postgres
+  - psql -c 'create database testdb;' -U postgres
+  - psql --version
+  - chromedriver --version
+  - gunicorn --log-level=info --bind=127.0.0.1:5000 service:app &
+  - sleep 5
+  - curl -I http://localhost:5000/
 
-# command to install dependencies
-install: "pip3 install -r requirements.txt"
 
-# command to run tests
-script: nosetests
+cache: pip
+install:
+  - sudo apt-get install -y chromium-chromedriver python3-selenium
+  - pip install -r requirements.txt
+
+
+jobs:
+  include:
+    - stage: tests
+      script: nosetests
+      after_success: codecov
+    - script: behave
 
 after_success:
  - codecov
