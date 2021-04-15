@@ -1,16 +1,22 @@
+sudo:  required
+
 language: python
 python:
   - "3.7.9"
 
-  addons:
+addons:
   chrome: stable
-
 
 services:
   - postgresql
 
 env:
   - DATABASE_URI=postgres://postgres:@localhost:5432/testdb
+
+cache: pip
+install:
+  - sudo apt-get install -y chromium-chromedriver python3-selenium
+  - pip install -r requirements.txt  
 
 before_script:
   - psql -c 'create database testdb;' -U postgres
@@ -21,15 +27,11 @@ before_script:
   - curl -I http://localhost:5000/
 
 
-cache: pip
-install:
-  - sudo apt-get install -y chromium-chromedriver python3-selenium
-  - pip install -r requirements.txt
-
-
 jobs:
   include:
     - stage: tests
       script: nosetests
-      after_success: codecov
     - script: behave
+
+
+after_success: codecov    
