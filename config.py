@@ -8,7 +8,7 @@ import json
 # Get configuration from environment
 DATABASE_URI = os.getenv(
     "DATABASE_URI", 
-    "postgres://cnpgwkdl:iMQzXYFhIpayjOBTRshsc5tTn75DlOwh@queenie.db.elephantsql.com:5432/cnpgwkdl")
+    "postgres://postgres:postgres@localhost:5432/postgres")
 
 # override if we are running in Cloud Foundry
 if 'VCAP_SERVICES' in os.environ:
