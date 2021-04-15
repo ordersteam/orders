@@ -1,12 +1,12 @@
 ---
 # This manifest deploys a Python Flask application with a Cloudant database
 applications:
-- name: Orders-Devops-S21
+- name: nyu-order-service-s21
   path: .
   instances: 2
   memory: 128M
   routes:
-  - route: Orders-Devops-S21.us-south.cf.appdomain.cloud
+  - route: nyu-order-service-s21.us-south.cf.appdomain.cloud
   disk_quota: 1024M
   buildpacks: 
   - python_buildpack
