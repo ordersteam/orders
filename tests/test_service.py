@@ -207,16 +207,6 @@ class TestOrderService(TestCase):
         resp = self.app.patch("/orders")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-    def test_internal_server_error(self):
-        """ Internal Server error from Create Order """
-        @app.route('/orders/500Error')
-        def internal_server_error():
-            abort(500)
-
-        resp = self.app.get('/orders/500Error')
-        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     def test_delete_order(self):
         """ Test Delete Order API """
         # get the id of an order
