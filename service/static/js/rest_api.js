@@ -114,7 +114,7 @@ $(function () {
             var first_order = "";
             for(var i = 0; i < res.length; i++) {
                 var order = res[i];
-                var order_row = "<tr><td>"+order.id+"</td><td>"+order.customer_id+"</td><td>"+order.created_date+"</td>";
+                var order_row = "<tr><td>"+order.id+"</td><td>"+order.customer_id+"</td><td>"+order.creation_date+"</td>";
                 var empty_row = "<tr><td></td><td></td><td></td>";
                 for (var j = 0; j < order.order_items.length; j++) {
                     var item = order.order_items[j];

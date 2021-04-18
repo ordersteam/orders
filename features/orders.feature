@@ -97,7 +97,7 @@ Feature: The orders service back-end
     When I set the "id" to "0"
     And I set the "customer_id" to "666"
     And I press the "Update" button
-    Then I should see the message "order with id '0' was not found."
+    Then I should see the message "Order with id '0' was not found."
 
   Scenario: Read an order for an invalid id
     When I visit the "Home Page"
