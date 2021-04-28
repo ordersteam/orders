@@ -17,7 +17,7 @@ applications:
     FLASK_APP : service:app
     FLASK_DEBUG : false
   
-- name: NYU-order-service-s21-Prod
+- name: nyu-order-service-s21-prod
   path: .
   instances: 1
   memory: 64M
