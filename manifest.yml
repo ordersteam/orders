@@ -17,7 +17,6 @@ applications:
     FLASK_APP : service:app
     FLASK_DEBUG : false
 
-applications:
 - name: NYU-order-service-s21-Prod
   path: .
   instances: 1
