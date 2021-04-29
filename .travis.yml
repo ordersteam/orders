@@ -26,7 +26,6 @@ before_script:
   - sleep 5
   - curl -I http://localhost:5000/
 
-
 jobs:
   include:
     - stage: tests
@@ -34,4 +33,5 @@ jobs:
     - script: behave
 
 
-after_success: codecov    
+after_success: 
+- codecov    
