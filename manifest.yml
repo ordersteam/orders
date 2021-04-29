@@ -4,7 +4,7 @@ applications:
 - name: nyu-order-service-s21
   path: .
   instances: 2
-  memory: 64M
+  memory: 128M
   routes:
   - route: nyu-order-service-s21.us-south.cf.appdomain.cloud
   disk_quota: 1024M
@@ -20,7 +20,7 @@ applications:
 - name: nyu-order-service-s21-prod
   path: .
   instances: 2
-  memory: 64M
+  memory: 128M
   routes:
   - route: nyu-order-service-s21-prod.us-south.cf.appdomain.cloud
   disk_quota: 1024M
