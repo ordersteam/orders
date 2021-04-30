@@ -238,7 +238,7 @@ class OrderResource(Resource):
         order = Order.find(order_id)
         if not order:
             api.abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' was not found.".format(order_id))
-        order.deserialize(request.get_json())
+        order.customer_id = api.payload["customer_id"]
         order.id = order_id
         order.update()
 
@@ -307,7 +307,7 @@ class CancelOrderResource(Resource):
                 elif item.status == "PLACED":
                     item.status = "CANCELLED"
                 if items_not_cancellable == len(order.order_items):
-                    raise DataValidationError("All items have been shipped/delivered. Cannot the order")  
+                    raise DataValidationError("All items have been shipped/delivered. Cannot cancel the order")  
         except DataValidationError as dataValidationError:
                 api.abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
         order.update()    
