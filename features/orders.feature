@@ -146,7 +146,7 @@ Feature: The orders service back-end
     When I paste the "id" field
     And I press the "Retrieve" button
     And I press the "cancel" button
-    Then I should see the message "All items have been shipped/delivered. Cannot the order"
+    Then I should see the message "All items have been shipped/delivered. Cannot cancel the order"
 
   Scenario: Delete an Order
     When I visit the "Home Page"
