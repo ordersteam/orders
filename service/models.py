@@ -31,6 +31,8 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     status = db.Column(db.String, nullable=False, default = "PLACED")
+    item_total = db.Column(db.Float, nullable=False, default=0)
+
     # The order id has to be stored in another table as the different items have the same order id
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
 
@@ -44,7 +46,8 @@ class Item(db.Model):
             "product_id": self.product_id,
             "quantity": self.quantity,
             "price": self.price,
-            "status": self.status
+            "status": self.status,
+            "item_total": self.item_total
         }
 
     def deserialize(self, data):
@@ -60,6 +63,8 @@ class Item(db.Model):
             price_aux = float(self.price)
             quantity_aux = float(self.quantity)
             self.status = data["status"]
+            self.item_total = round(price_aux*quantity_aux,2)
+            
             #checks product id is an int
             if self.product_id is None or not isinstance(self.product_id, int):
                 raise DataValidationError("Invalid order: check product id")
@@ -73,6 +78,12 @@ class Item(db.Model):
                     (not isinstance(self.price, float) and not isinstance(self.price, int)):
                 raise DataValidationError("Invalid Item: check price")
 
+            #checks total is floar and greater than 0
+            if  self.item_total <= 0 or \
+                    (not isinstance(self.item_total, float) and not isinstance(self.item_total, int)):
+                raise DataValidationError("Invalid Amount: Check price or quantity")
+
+            #checks status is defined
             if self.status not in ['PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED']:
                 raise DataValidationError("Invalid order: not a valid status")
 
@@ -89,7 +100,7 @@ class Item(db.Model):
         Removes an Item from the Database
         """
         db.session.delete(self)
-        db.session.commit() 
+        db.session.commit()
 
     
 class Order(db.Model):
@@ -103,6 +114,8 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, nullable=False)
     creation_date = db.Column(db.DateTime(), default=datetime.now)
+    order_total = db.Column(db.Float, nullable=False, default=0)
+
     # List of items in the order 
     order_items = db.relationship('Item', backref='order', cascade="all, delete")
 
@@ -134,6 +147,13 @@ class Order(db.Model):
             raise DataValidationError("Customer Id is not valid")
         if len(self.order_items) == 0:
             raise DataValidationError("Order Items can't be empty")
+
+        for data_item in self.order_items:
+                data_item.item_total = round(data_item.price*data_item.quantity,2)
+                if self.order_total is None:
+                    self.order_total = 0
+                self.order_total += data_item.item_total
+
         db.session.commit()
 
     def delete(self):
@@ -149,7 +169,8 @@ class Order(db.Model):
             "id": self.id,
             "customer_id": self.customer_id,
             "creation_date": self.creation_date,
-            "order_items": [order_item.serialize() for order_item in self.order_items]
+            "order_items": [order_item.serialize() for order_item in self.order_items],
+            "order_total": self.order_total,
         }
 
     def deserialize(self, data: dict):
@@ -172,6 +193,9 @@ class Order(db.Model):
             for data_item in items:
                 item = Item()
                 item.deserialize(data_item)
+                if self.order_total is None:
+                    self.order_total = 0
+                self.order_total += item.item_total
                 self.order_items.append(item)
         except KeyError as error:
             raise DataValidationError("Invalid order: missing " + error.args[0])
@@ -181,6 +205,18 @@ class Order(db.Model):
             )
         return self
 
+    def calc_order_totals(self):
+        """ Calculates order total """
+        
+        items = self.order_items
+        if items is None or len(items) == 0:
+            raise DataValidationError("Order Items can't be empty")
+        for data_item in items:
+            if self.order_total is None:
+                self.order_total = 0
+            self.order_total += data_item.item_total
+        
+        return self
 
     @classmethod
     def init_db(cls, app):

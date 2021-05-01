@@ -62,9 +62,10 @@ class TestOrderModel(unittest.TestCase):
 
     def test_create_order(self):
         """ Create an order with a single item in the database to test """
-        order_item = Item(product_id=2, quantity=3, price=3)
+        order_item = Item(product_id=2, quantity=3, price=3, item_total=3*3)
         order_items = [order_item]
         order = Order(customer_id=34, order_items=order_items)
+        order.calc_order_totals()
         self.assertTrue(order is not None)
         self.assertEqual(order.id, None)
         self.assertEqual(len(order.order_items), 1)
@@ -75,16 +76,19 @@ class TestOrderModel(unittest.TestCase):
         self.assertEqual(len(order.order_items), 1)
         self.assertEqual(order.order_items[0].item_id, 1)
         self.assertEqual(order.order_items[0].order_id, 1)
+        self.assertEqual(order.order_items[0].item_total, 9)
+        self.assertEqual(order.order_total, 9)
 
     def test_update_an_order(self):
         """ Update an existing Order """
-        order_item1 = Item(product_id=3, quantity=2, price=5)
+        order_item1 = Item(product_id=3, quantity=2, price=5, item_total=10)
         order_items = [order_item1]
         order = Order(customer_id=123, order_items=order_items)
+        order.calc_order_totals()
         order.create()
         self.assertTrue(order.id is not None)
         #change order and update
-        order_item2 = Item(product_id=7, quantity=1, price=3)
+        order_item2 = Item(product_id=7, quantity=1, price=3, item_total=3)
         order.order_items.append(order_item2)
         order.update()
         self.assertEqual(order.id, 1)
@@ -184,10 +188,12 @@ class TestOrderModel(unittest.TestCase):
     
     def test_delete_an_order(self):
         """ Delete two Orders """
-        item1 = Item(product_id=1, quantity=1, price=5.0)
-        item2 = Item(product_id=2, quantity=3, price=5.0)
+        item1 = Item(product_id=1, quantity=1, price=5.0, item_total=5)
+        item2 = Item(product_id=2, quantity=3, price=5.0, item_total=15)
         order1 = Order(customer_id=121, order_items= [item1])
         order2 = Order(customer_id=111, order_items= [item2])
+        order1.calc_order_totals()
+        order2.calc_order_totals()
         order1.create()
         order2.create()
         self.assertEqual(len(Order.all()), 2)
