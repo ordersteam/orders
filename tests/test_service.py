@@ -91,7 +91,7 @@ class TestOrderService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_get_order(self):
-        """ Get a single Order """
+        """ Get a single order """
         # get the id of a order
         test_order = self._create_orders(1)[0]
         resp = self.app.get(

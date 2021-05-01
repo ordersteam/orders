@@ -130,6 +130,7 @@ Database Used: PostgreSQL
 | id | Integer | Primary Key |
 | customer_id | Integer | |
 | creation_date | Datetime | |
+| order_total | Float | |
 
 ### Item:
 
@@ -141,6 +142,7 @@ Database Used: PostgreSQL
 | quantity | Integer | |
 | status   |  String || PLACED, SHIPPED, DELIVERED, CANCELLED ||
 | order_id | Integer | Foreign Key |
+| item_total | Float | |
 
 
 ### APIs Supported

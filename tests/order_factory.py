@@ -28,6 +28,7 @@ class OrderFactory(BaseFactory):
     id = factory.Sequence(lambda n: n)
     customer_id = random.randint(1, 100000)
     order_items = []
+    order_total = 0
 
     @factory.post_generation
     def items(self, create, extracted, **kwargs):
@@ -37,7 +38,10 @@ class OrderFactory(BaseFactory):
 
         if extracted:
             self.order_items = extracted
-
+            for data_item in extracted:
+                if self.order_total is None:
+                    self.order_total = 0
+                self.order_total += data_item.item_total
 
 class ItemFactory(BaseFactory):
     """ Creates fake order items """
@@ -50,6 +54,7 @@ class ItemFactory(BaseFactory):
     product_id = random.randint(1, 100)
     quantity = random.randint(1, 10)
     price = random.uniform(1, 1000)
+    item_total = round(price*quantity,2)
     status = FuzzyChoice(choices=["PLACED"])
     order_id = factory.SubFactory(OrderFactory)
 

@@ -71,7 +71,9 @@ item_model = api.model('Item', {
     'price': fields.Float(required=True,
                           description='Price of item'),
     'status': fields.String(required=True,
-                            description='Status of item')
+                            description='Status of item'),
+    'item_total': fields.Float(readOnly=True,
+                              description='Line amount'),
 })
 
 create_model = api.model('Order', {
@@ -92,7 +94,8 @@ order_model = api.model('Order', {
     'customer_id': fields.Integer(required=True,
                                   description='The customer id of Order'),
     'order_items': fields.List(fields.Nested(item_model, required=True), required=True,
-                               description='The items in Order')
+                               description='The items in Order'),
+    'order_total': fields.Float(readOnly=True, description='Order total amount (sum of all item totals)')
 })
 
 # query string arguments
@@ -350,7 +353,6 @@ class ItemCollection(Resource):
 
         order.order_items.append(item)
         order.update();
-        message = order.serialize()
         return order.serialize(), status.HTTP_200_OK
 
 
@@ -495,6 +497,7 @@ def find_item(item, order, item_id):
             order.order_items[i].quantity = item.quantity
             order.order_items[i].price = item.price
             order.order_items[i].status = item.status
+            order.order_items[i].item_total = item.item_total
             break
     return item_found    
 
