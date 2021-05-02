@@ -102,7 +102,6 @@ $(function () {
             header += '<th colspan="5">ORDER ITEMS</th></tr><tr>'
             header += '<th style="width:10%">Order ID</th>'
             header += '<th style="width:15%">Customer ID</th>'
-            header += '<th style="width:30%">Created Date</th>'
             header += '<th style="width:10%">Item ID</th>'
             header += '<th style="width:10%">Product ID</th>'
             header += '<th style="width:10%">Quantity</th>'
@@ -114,7 +113,7 @@ $(function () {
             var first_order = "";
             for(var i = 0; i < res.length; i++) {
                 var order = res[i];
-                var order_row = "<tr><td>"+order.id+"</td><td>"+order.customer_id+"</td><td>"+order.creation_date+"</td>";
+                var order_row = "<tr><td>"+order.id+"</td><td>"+order.customer_id+"</td><td>";
                 var empty_row = "<tr><td></td><td></td><td></td>";
                 for (var j = 0; j < order.order_items.length; j++) {
                     var item = order.order_items[j];
