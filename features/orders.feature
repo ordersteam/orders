@@ -115,17 +115,6 @@ Feature: The orders service back-end
     And I should not see order for customer_id "1002" in the results
     And I should not see order for customer_id "1003" in the results  
 
-  Scenario: Cancel an Order with placed items
-    When I visit the "Home Page"
-    And I set the "customer_id" to "1003"
-    And I press the "find-by-customer-id" button
-    Then I should see the message "Success"
-    And I should see "PLACED" in the results
-    When I press the "cancel" button
-    Then I should see the message "Success"
-    When I press the "Retrieve" button
-    Then I should see "Cancelled" in the "item0_status" dropdown
-
   Scenario: Cancel an Order with shipped/delivered items
     When I visit the "Home Page"
     And I set the "customer_id" to "1001"
