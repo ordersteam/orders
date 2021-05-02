@@ -90,7 +90,7 @@ order_update_model = api.model('OrderUpdateModel', {
 
 order_model = api.model('Order', {
     'id': fields.Integer(required=True, description='The id for each order autoassigned'),
-    'created_date': fields.DateTime(required=False, description='The date and time at which order was created'),
+    'creation_date': fields.DateTime(required=False, description='The date and time at which order was created'),
     'customer_id': fields.Integer(required=True,
                                   description='The customer id of Order'),
     'order_items': fields.List(fields.Nested(item_model, required=True), required=True,

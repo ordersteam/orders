@@ -102,7 +102,7 @@ $(function () {
             header += '<th colspan="5">ORDER ITEMS</th></tr><tr>'
             header += '<th style="width:10%">Order ID</th>'
             header += '<th style="width:15%">Customer ID</th>'
-            header += '<th style="width:30%">Created Date</th>'
+            header += '<th style="width:30%">Creation Date</th>'
             header += '<th style="width:10%">Item ID</th>'
             header += '<th style="width:10%">Product ID</th>'
             header += '<th style="width:10%">Quantity</th>'
