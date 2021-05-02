@@ -121,17 +121,10 @@ Feature: The orders service back-end
     And I press the "find-by-customer-id" button
     Then I should see the message "Success"
     And I should see "PLACED" in the results
-    When I copy the "id" field
-    And I press the "Reset-Form" button
-    Then the "id" field should be empty
-    When I paste the "id" field
-    And I press the "Retrieve" button
     When I press the "cancel" button
     Then I should see the message "Success"
-    When I set the "customer_id" to "1003"
-    And I press the "find-by-customer-id" button
-    Then I should see the message "Success"
-    And I should see "CANCELLED" in the results
+    When I press the "Retrieve" button
+    Then I should see "Cancelled" in the "item0_status" dropdown
 
   Scenario: Cancel an Order with shipped/delivered items
     When I visit the "Home Page"
