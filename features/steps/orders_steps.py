@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
 
-WAIT_SECONDS = int(getenv('WAIT_SECONDS', '100'))
+WAIT_SECONDS = int(getenv('WAIT_SECONDS', '500'))
 ID_PREFIX = 'order_'
 
 
