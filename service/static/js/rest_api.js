@@ -117,7 +117,7 @@ $(function () {
                 var empty_row = "<tr><td></td><td></td><td></td>";
                 for (var j = 0; j < order.order_items.length; j++) {
                     var item = order.order_items[j];
-                    var item_row = "<td>"+ item.item_id+"</td><td>"+ item.product_id + "</td><td>" 
+                    var item_row = item.item_id+"</td><td>"+ item.product_id + "</td><td>" 
                                          + item.quantity + "</td><td>" + item.price + "</td><td>" 
                                          + item.status + "</td></tr>";
                     $("#results").append((j == 0 ? order_row : empty_row) + item_row);
