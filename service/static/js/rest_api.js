@@ -154,7 +154,7 @@ $(function () {
             data: '',
         })
 
-        update_form_and_message(ajax, action.UPDATE, action.RESET);
+        update_form_and_message(ajax, action.NO_ACTION, action.RESET);
     });
 
 
@@ -187,7 +187,7 @@ $(function () {
             data: ''
         })
 
-        update_form_and_message(ajax, action.UPDATE, action.RESET);
+        update_form_and_message(ajax, action.NO_ACTION, action.RESET);
     });
 
 
@@ -205,7 +205,7 @@ $(function () {
             data: ''
         })
 
-        update_form_and_message(ajax, action.UPDATE, action.RESET);
+        update_form_and_message(ajax, action.NO_ACTION, action.RESET);
     });
 
     // ****************************************
