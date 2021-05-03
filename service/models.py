@@ -95,6 +95,18 @@ class Item(db.Model):
             )
         return self
 
+    @classmethod
+    def all(cls):
+        """ Returns all of the Items in the database """
+        logger.info("Processing all Orders")
+        return cls.query.all()    
+
+    @classmethod
+    def find_by_product_id(cls, product_id: int):
+        """Returns all of the orders with product_id: product_id """
+        logger.info("Processing product_id query for %s ...", product_id)
+        return cls.query.filter(cls.product_id == product_id)    
+
     def delete(self):
         """ 
         Removes an Item from the Database
