@@ -433,3 +433,28 @@ class TestOrderService(TestCase):
         resp = self.app.put("/orders/{}/items/{}/cancel".format(new_order_id, item_id),
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST) 
+
+    def test_get_order_item_product_id(self):
+        """ Get an Item inside based on product id """
+        test_order = self._create_orders(1)[0]
+        item_id = test_order.order_items[0].item_id
+        product_id = test_order.order_items[0].product_id
+        order_item = ItemFactory()
+        resp = self.app.get('/items?product_id={}'.format(product_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_item = resp.get_json()[0]
+        self.assertEqual(new_item["quantity"], order_item.quantity)
+        self.assertAlmostEqual(new_item["price"], order_item.price)
+        self.assertEqual(new_item["status"], order_item.status)      
+
+    def test_get_order_items(self):
+        """ Get list of all items """
+        test_order = self._create_orders(2)[0]
+        order_item = ItemFactory()
+        resp = self.app.get('/items',
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_item = resp.get_json()
+        self.assertEqual(len(new_item), 2)
+    

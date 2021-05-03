@@ -104,6 +104,10 @@ order_args.add_argument('customer_id', type=int, required=False, help='List Orde
 order_args.add_argument('sort', type=str, required=False, help='List Orders by sort order')
 order_args.add_argument('sort_by', type=str, required=False, help='List Orders by the field')
 
+
+item_args = reqparse.RequestParser()
+item_args.add_argument('product_id', type=int, required=False, help='List Orders by product id')
+
 ######################################################################
 # Error Handlers
 ######################################################################
@@ -321,6 +325,36 @@ class CancelOrderResource(Resource):
 ######################################################################
 #  Item related APIs below
 ######################################################################
+######################################################################
+# LIST ITEMS
+######################################################################
+@api.route('/items', strict_slashes=False)
+class ItemCollection(Resource):
+
+    @api.doc('list_items')
+    @api.expect(item_args, validate=True)
+    @api.marshal_with(item_model, code=200)
+    def get(self):
+        """
+        Returns list of all items or items based on product id
+        """
+        app.logger.info("Request for item list")
+        
+        params = request.args
+        product_id = params.get("product_id")
+       
+        if product_id:
+            items = Item.find_by_product_id(product_id)
+        else:
+            items = Item.all()
+        try:
+            results = [item.serialize() for item in items]
+        except DataValidationError as dataValidationError:
+            api.abort(status.HTTP_400_BAD_REQUEST, dataValidationError)
+
+        app.logger.info("Returning %d items", len(results))
+        return results, status.HTTP_200_OK
+
 
 ######################################################################
 #  Add Item to order
