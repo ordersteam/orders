@@ -130,24 +130,6 @@ Feature: The orders service back-end
     And I press the "cancel" button
     Then I should see the message "All items have been shipped/delivered. Cannot cancel the order"
 
-  Scenario: Cancel an Order with placed items
-    When I visit the "Home Page"
-    And I set the "customer_id" to "1003"
-    And I press the "find-by-customer-id" button
-    Then I should see the message "Success"
-    And I should see "PLACED" in the results
-    When I copy the "id" field
-    And I press the "Reset-Form" button
-    Then the "id" field should be empty
-    When I paste the "id" field
-    And I press the "Retrieve" button
-    When I press the "cancel" button
-    Then I should see the message "Success"
-    When I set the "customer_id" to "1003"
-    And I press the "find-by-customer-id" button
-    Then I should see the message "Success"
-    And I should see "CANCELLED" in the results
-
   Scenario: Delete an Order
     When I visit the "Home Page"
     And I press the "List-All" button
