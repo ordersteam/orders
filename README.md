@@ -105,6 +105,14 @@ To run the service use `flask run` (Press Ctrl+C to exit):
 
 You must pass the parameters `-h 0.0.0.0` to have it listed on all network adapters to that the post can be forwarded by `vagrant` to your host computer so that you can open the web page in a local browser at: http://localhost:5000
 
+Alternatively, honcho start can be used to start the service.
+
+The BDD tests can be run manually by 
+```bash
+  $ behave
+```
+assuming the service is up and running.
+
 ## Vagrant shutdown
 
 If you are using Vagrant and VirtualBox, when you are done, you should exit the virtual machine and shut down the vm with:
@@ -119,9 +127,13 @@ If the VM is no longer needed you can remove it with:
 ```bash
   $ vagrant destroy
 ```
+
+### IBM Cloud deployment
+The code has been deployed to IBM Cloud using the details in the mainfest.yml file.  An automated workflow has been set up to trigger deployment to dev and run BDD tests followed by deployment to prod if the tests pass.
+
 ### Database Schema
 
-Database Used: PostgreSQL
+Database Used: PostgreSQL 
 
 ### Order:
 
